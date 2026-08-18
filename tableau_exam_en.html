@@ -1,0 +1,2097 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau Interactive Examination Platform (100 Questions)</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --accent: #38bdf8;
+            --easy-bg: #064e3b;
+            --easy-color: #34d399;
+            --med-bg: #78350f;
+            --med-color: #fbbf24;
+            --hard-bg: #7f1d1d;
+            --hard-color: #f87171;
+            --correct-bg: #064e3b;
+            --correct-border: #10b981;
+            --wrong-bg: #7f1d1d;
+            --wrong-border: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* SCREEN 1: START SELECTION SCREEN */
+        .start-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 850px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .start-title {
+            font-size: 2.2rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .start-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 35px;
+        }
+
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        @media (max-width: 650px) {
+            .selection-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .select-card {
+            background-color: #0f172a;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            padding: 25px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+        }
+
+        .select-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            background-color: #1e293b;
+        }
+
+        .select-card.selected {
+            border-color: var(--accent);
+            background-color: #1e293b;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        .select-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .select-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .card-count {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: normal;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #2563eb, #0284c7);
+            color: white;
+            border: none;
+            padding: 16px 45px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .start-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 12px 25px rgba(37, 99, 235, 0.6);
+        }
+
+        /* SCREEN 2: EXAM SCREEN */
+        .exam-wrapper {
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            display: none;
+        }
+
+        @media (max-width: 850px) {
+            .exam-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .change-mode-btn {
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            color: var(--accent);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: background 0.2s ease;
+        }
+
+        .change-mode-btn:hover {
+            background-color: #1e293b;
+        }
+
+        .grid-palette {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .q-num-btn {
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 0;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .q-num-btn.active {
+            border-color: var(--accent);
+            background-color: var(--primary);
+            font-weight: bold;
+        }
+
+        .q-num-btn.answered-correct {
+            background-color: var(--easy-bg);
+            border-color: var(--easy-color);
+        }
+
+        .q-num-btn.answered-wrong {
+            background-color: var(--hard-bg);
+            border-color: var(--hard-color);
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .badge-easy {
+            background-color: var(--easy-bg);
+            color: var(--easy-color);
+            border: 1px solid var(--easy-color);
+        }
+
+        .badge-medium {
+            background-color: var(--med-bg);
+            color: var(--med-color);
+            border: 1px solid var(--med-color);
+        }
+
+        .badge-hard {
+            background-color: var(--hard-bg);
+            color: var(--hard-color);
+            border: 1px solid var(--hard-color);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #2563eb);
+            width: 1%;
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #f1f5f9;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .option-btn {
+            background-color: #0f172a;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px 20px;
+            color: var(--text-color);
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background-color: #1e293b;
+        }
+
+        .option-btn.selected {
+            border-color: var(--accent);
+            background-color: #1e293b;
+        }
+
+        .option-btn.correct {
+            background-color: var(--correct-bg);
+            border-color: var(--correct-border);
+            color: #ecfdf5;
+        }
+
+        .option-btn.wrong {
+            background-color: var(--wrong-bg);
+            border-color: var(--wrong-border);
+            color: #fef2f2;
+        }
+
+        .explanation {
+            background-color: #090d16;
+            border-left: 4px solid var(--accent);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .explanation strong {
+            color: var(--accent);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .footer-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:disabled {
+            background-color: #475569;
+            cursor: not-allowed;
+        }
+
+        .result-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .score-circle {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #0284c7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 20px auto;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN 1: START SELECTION SCREEN -->
+    <div id="start-screen" class="start-container">
+        <h1 class="start-title">Tableau Interactive Examination Platform</h1>
+        <p class="start-subtitle">Select your preferred difficulty level to begin the exam</p>
+
+        <div class="selection-grid">
+            <div class="select-card selected" onclick="selectDifficulty('all', this)">
+                <h3>
+                    <span>📋 All Questions (Comprehensive)</span>
+                    <span class="card-count">100 Questions</span>
+                </h3>
+                <p>Complete examination covering 50 Easy, 30 Medium, and 20 Hard questions across all 8 lectures.</p>
+            </div>
+
+            <div class="select-card" onclick="selectDifficulty('easy', this)">
+                <h3>
+                    <span>🟢 Easy Level</span>
+                    <span class="card-count">50 Questions</span>
+                </h3>
+                <p>Basic concepts, terminology, definitions, data pane basics, discrete vs continuous, and aggregations.</p>
+            </div>
+
+            <div class="select-card" onclick="selectDifficulty('medium', this)">
+                <h3>
+                    <span>🟡 Medium Level</span>
+                    <span class="card-count">30 Questions</span>
+                </h3>
+                <p>Applications, data cleaning, quick filters, chart types, data blending, and dashboard actions.</p>
+            </div>
+
+            <div class="select-card" onclick="selectDifficulty('hard', this)">
+                <h3>
+                    <span>🔴 Hard Level</span>
+                    <span class="card-count">20 Questions</span>
+                </h3>
+                <p>Advanced LOD expressions (FIXED/INCLUDE/EXCLUDE), Order of Operations, and complex context filters.</p>
+            </div>
+        </div>
+
+        <button class="start-btn" onclick="startExam()">Start Exam Now 🚀</button>
+    </div>
+
+    <!-- SCREEN 2: DEDICATED EXAM SCREEN -->
+    <div id="exam-screen" class="exam-wrapper">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <button class="change-mode-btn" onclick="backToStart()">⬅️ Change Exam Level</button>
+
+            <h3>Question Palette</h3>
+            <div id="grid-palette" class="grid-palette">
+                <!-- Dynamic Jump Buttons -->
+            </div>
+
+            <div style="margin-top: 20px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+                Current Score: <strong id="score-counter" style="color: var(--accent);">0</strong>
+            </div>
+        </div>
+
+        <!-- Main Quiz Card -->
+        <div class="quiz-card">
+            <div id="quiz-main-view">
+                <div class="quiz-header">
+                    <span id="diff-badge" class="badge badge-easy">🟢 Easy</span>
+                    <span id="question-count" style="color: var(--accent); font-weight: bold;">Question 1 of 100</span>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+
+                <div class="question-box">
+                    <h2 id="question-text" class="question-text">Loading Question...</h2>
+                </div>
+
+                <div id="options-container" class="options-list">
+                    <!-- Dynamic Options -->
+                </div>
+
+                <div id="explanation-box" class="explanation">
+                    <strong>💡 Scientific Explanation & Lecture Reference:</strong>
+                    <span id="explanation-text"></span>
+                </div>
+
+                <div class="footer-nav">
+                    <button class="btn" onclick="prevQuestion()" style="background-color: #334155;">⬅️ Previous</button>
+                    <button id="next-btn" class="btn" onclick="handleNextQuestion()" disabled>Confirm Answer ➡️</button>
+                </div>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="result-screen" class="result-screen">
+                <h1 style="color: var(--accent); margin-bottom: 10px;">Examination Results</h1>
+                <p style="color: var(--text-muted);">Summary Performance Breakdown</p>
+
+                <div class="score-circle" id="final-score">0</div>
+
+                <div id="result-breakdown" style="margin: 20px 0; font-size: 1.1rem; line-height: 1.8;">
+                    <!-- Detailed Breakdown -->
+                </div>
+
+                <button class="btn" onclick="backToStart()" style="margin-top: 20px;">Return to Selection Page 🔄</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allQuestions = [
+  {
+    "id": 1,
+    "question": "1. What is Tableau primarily designed for?",
+    "options": [
+      "Business Intelligence and Visual Data Analytics",
+      "Word Processing and Document Editing",
+      "Enterprise Operating System",
+      "Raster Graphics Editing"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 1: Tableau is a leading BI platform that helps people see, understand, and explore data with interactive dashboards."
+  },
+  {
+    "id": 2,
+    "question": "2. Which Tableau product is completely free and designed for sharing visualizations publicly?",
+    "options": [
+      "Tableau Desktop",
+      "Tableau Server",
+      "Tableau Public",
+      "Tableau Online"
+    ],
+    "correct": 2,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 1: Tableau Public is the free version intended for public sharing and personal portfolio creation."
+  },
+  {
+    "id": 3,
+    "question": "3. Which Tableau tool is specifically built for data cleaning and transformation before analysis?",
+    "options": [
+      "Tableau Prep",
+      "Tableau Server",
+      "Tableau Reader",
+      "Tableau Online"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 1: Tableau Prep is designed for data preparation, cleaning, and reshaping."
+  },
+  {
+    "id": 4,
+    "question": "4. Which product enables enterprise-level sharing and collaboration on internal company servers?",
+    "options": [
+      "Tableau Server",
+      "Tableau Public",
+      "Tableau Prep",
+      "Tableau Mobile"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 1: Tableau Server provides centralized enterprise sharing, governance, and collaboration."
+  },
+  {
+    "id": 5,
+    "question": "5. Compared to Power BI, Tableau is particularly known for:",
+    "options": [
+      "Being completely free for all users",
+      "Offering highly customizable and advanced visualizations",
+      "Requiring zero technical learning",
+      "Not supporting SQL databases"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 1: Tableau offers rich, highly customizable visual interactivity and advanced statistical capabilities."
+  },
+  {
+    "id": 6,
+    "question": "6. Which section in the Tableau start page lets you open pre-loaded sample workbooks like Superstore?",
+    "options": [
+      "Sample Workbooks",
+      "Saved Sources",
+      "Connect to Server",
+      "Discover"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 1: Sample Workbooks contains built-in datasets like Sample - Superstore."
+  },
+  {
+    "id": 7,
+    "question": "7. Which cloud-based product provides Tableau Server capabilities hosted by Tableau?",
+    "options": [
+      "Tableau Online",
+      "Tableau Desktop",
+      "Tableau Prep",
+      "Tableau Public"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 1: Tableau Online is the cloud-hosted SaaS version of Tableau Server."
+  },
+  {
+    "id": 8,
+    "question": "8. Which competing BI tool integrates seamlessly with the Microsoft ecosystem and offers competitive pricing?",
+    "options": [
+      "Power BI",
+      "Tableau Desktop",
+      "Tableau Server",
+      "Tableau Prep"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 1: Power BI is Microsoft's primary BI tool."
+  },
+  {
+    "id": 9,
+    "question": "9. Where are the data connection options located when launching Tableau Desktop?",
+    "options": [
+      "Connect Pane on the left side",
+      "Marks Card",
+      "Help menu",
+      "Filters shelf"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 1: The Connect Pane on the left lists files and server connections."
+  },
+  {
+    "id": 10,
+    "question": "10. What is a primary advantage of Google Data Studio (Looker Studio) compared to Tableau?",
+    "options": [
+      "Completely free and tightly integrated with Google tools",
+      "Produces more complex visual analytics than Tableau",
+      "Superior performance with huge datasets",
+      "Advanced statistical modeling"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 1: Google Data Studio is free and optimal for Google product integration."
+  },
+  {
+    "id": 11,
+    "question": "11. What is the primary role of Dimensions in Tableau?",
+    "options": [
+      "Represent quantitative numerical metrics",
+      "Provide qualitative categorical context to data",
+      "Calculate averages only",
+      "Create continuous numeric axes"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: Dimensions are qualitative/categorical fields providing context (What, Who, When, Where)."
+  },
+  {
+    "id": 12,
+    "question": "12. What is the primary role of Measures in Tableau?",
+    "options": [
+      "Represent quantitative numerical metrics that can be aggregated",
+      "Represent string names and customer IDs",
+      "Specify geographical country names only",
+      "Color background containers"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: Measures are quantitative numerical fields that can be summed, averaged, or counted."
+  },
+  {
+    "id": 13,
+    "question": "13. What color are Discrete field pills in Tableau?",
+    "options": [
+      "Green",
+      "Blue",
+      "Red",
+      "Yellow"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: Discrete fields are always represented by Blue pills."
+  },
+  {
+    "id": 14,
+    "question": "14. What color are Continuous field pills in Tableau?",
+    "options": [
+      "Blue",
+      "Green",
+      "Orange",
+      "Purple"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: Continuous fields are always represented by Green pills."
+  },
+  {
+    "id": 15,
+    "question": "15. What is the default aggregation for Measures when dragged into a view?",
+    "options": [
+      "AVG",
+      "COUNT",
+      "SUM",
+      "MEDIAN"
+    ],
+    "correct": 2,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: The default aggregation for any measure in Tableau is SUM."
+  },
+  {
+    "id": 16,
+    "question": "16. Which top menu bar item contains File, Data, Worksheet, Dashboard, and Analysis options?",
+    "options": [
+      "Toolbar",
+      "Menu Bar",
+      "Data Pane",
+      "Marks Card"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: The Menu Bar is the topmost bar containing workspace menus."
+  },
+  {
+    "id": 17,
+    "question": "17. What do Discrete fields create when placed on Rows or Columns?",
+    "options": [
+      "Continuous axes (Axes)",
+      "Discrete headers and categories (Headers)",
+      "Trend lines",
+      "Heatmaps"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: Discrete fields create headers, whereas Continuous fields create axes."
+  },
+  {
+    "id": 18,
+    "question": "18. What do Continuous fields create when placed on Rows or Columns?",
+    "options": [
+      "Categorical headers",
+      "Continuous numeric axes (Axes)",
+      "Blue dimension sets",
+      "Text tables"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: Continuous fields create continuous numeric axes."
+  },
+  {
+    "id": 19,
+    "question": "19. Where are Dimensions located in the Data Pane by default?",
+    "options": [
+      "At the bottom section",
+      "At the top section",
+      "Inside the Marks Card",
+      "On the Toolbar"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: Dimensions are listed in the upper section of the Data Pane, above Measures."
+  },
+  {
+    "id": 20,
+    "question": "20. What represents a single row in a tabular dataset?",
+    "options": [
+      "Record",
+      "Field",
+      "Pill",
+      "Shelf"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: A record (row) contains data about one entity, while a field (column) represents an attribute."
+  },
+  {
+    "id": 21,
+    "question": "21. What represents a single attribute or column in a dataset?",
+    "options": [
+      "Field",
+      "Record",
+      "Dashboard",
+      "Sheet"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: A field (column) is a single attribute of information."
+  },
+  {
+    "id": 22,
+    "question": "22. Which button on the Toolbar reverts your last action in Tableau?",
+    "options": [
+      "Undo icon",
+      "Redo icon",
+      "Show Me",
+      "Swap"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: The Undo button reverts recent changes."
+  },
+  {
+    "id": 23,
+    "question": "23. Which card contains options for Color, Size, Label, Detail, and Tooltip?",
+    "options": [
+      "Marks Card",
+      "Data Pane",
+      "Status Bar",
+      "Filters Shelf"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: The Marks Card controls mark properties and visual encodings."
+  },
+  {
+    "id": 24,
+    "question": "24. Which menu allows you to turn off 'Aggregate Measures'?",
+    "options": [
+      "Analysis menu",
+      "File menu",
+      "View menu",
+      "Help menu"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: Analysis -> Aggregate Measures toggles default measure aggregation."
+  },
+  {
+    "id": 25,
+    "question": "25. How do Date fields typically load into the Data Pane initially?",
+    "options": [
+      "Discrete Dimensions represented by blue pills at the Year level",
+      "Green measures",
+      "Red pills",
+      "Disabled filters"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 2: Date fields load as Discrete Dimensions (blue pills) at the Year level by default."
+  },
+  {
+    "id": 26,
+    "question": "26. Which of the following is an example of a flat file data source?",
+    "options": [
+      "Microsoft Excel (.xlsx)",
+      "MySQL Server",
+      "Google BigQuery",
+      "Snowflake"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: Excel, CSV, PDF, and Spatial files are flat files."
+  },
+  {
+    "id": 27,
+    "question": "27. What is the process of removing or correcting inaccurate, duplicate, or corrupted data called?",
+    "options": [
+      "Data Transformation",
+      "Data Cleaning",
+      "Data Visualization",
+      "Data Modeling"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: Data cleaning fixes or removes incorrect, duplicate, or incomplete data."
+  },
+  {
+    "id": 28,
+    "question": "28. How many primary characteristics define data quality?",
+    "options": [
+      "3",
+      "5",
+      "10",
+      "2"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: The 5 characteristics of quality data are Validity, Accuracy, Completeness, Consistency, and Uniformity."
+  },
+  {
+    "id": 29,
+    "question": "29. Which join type returns only rows that have matching key values in both tables?",
+    "options": [
+      "Left Join",
+      "Right Join",
+      "Inner Join",
+      "Full Outer Join"
+    ],
+    "correct": 2,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: Inner Join combines only matching rows between tables."
+  },
+  {
+    "id": 30,
+    "question": "30. Which join type returns all rows from the left table and matching rows from the right table?",
+    "options": [
+      "Left Outer Join",
+      "Right Outer Join",
+      "Inner Join",
+      "Self Join"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: Left Outer Join preserves all records from the primary left table."
+  },
+  {
+    "id": 31,
+    "question": "31. Which feature splits a combined string column (e.g. 'Towel:Housekeeping') into two columns?",
+    "options": [
+      "Split Text to Columns",
+      "Data Blending",
+      "Replace Data Source",
+      "Grouping"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: The Split option separates columns based on a delimiter like a colon."
+  },
+  {
+    "id": 32,
+    "question": "32. What does a red exclamation mark next to a field indicate after replacing a data source?",
+    "options": [
+      "The field is duplicated",
+      "The field is missing or invalid in the new data source",
+      "The field requires aggregation",
+      "The field is discrete"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: A red exclamation mark indicates the field is not present in the new source."
+  },
+  {
+    "id": 33,
+    "question": "33. How many rows does the 'View Data' window display by default?",
+    "options": [
+      "100",
+      "1000",
+      "5000",
+      "10000"
+    ],
+    "correct": 2,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: The View Data dialog displays up to 5000 rows by default."
+  },
+  {
+    "id": 34,
+    "question": "34. What is the purpose of the 'Duplicate' option on a Worksheet tab?",
+    "options": [
+      "Deletes the sheet",
+      "Creates an exact copy of the current worksheet",
+      "Publishes to server",
+      "Locks editing"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: Duplicate mimics the exact setup of the original worksheet."
+  },
+  {
+    "id": 35,
+    "question": "35. Which data quality characteristic ensures data is close to its true values?",
+    "options": [
+      "Accuracy",
+      "Validity",
+      "Uniformity",
+      "Completeness"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: Accuracy ensures data values closely match reality."
+  },
+  {
+    "id": 36,
+    "question": "36. Which characteristic reflects the degree to which all required data is known?",
+    "options": [
+      "Completeness",
+      "Validity",
+      "Uniformity",
+      "Accuracy"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: Completeness measures the presence of all required data records."
+  },
+  {
+    "id": 37,
+    "question": "37. How do you add a new blank worksheet at the bottom tab bar?",
+    "options": [
+      "Click the New Worksheet icon (+)",
+      "File -> Save",
+      "Undo",
+      "Help"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: The New Worksheet icon next to sheet tabs creates a new sheet."
+  },
+  {
+    "id": 38,
+    "question": "38. Joining a table to itself to compare rows within the same table is known as:",
+    "options": [
+      "Self Join",
+      "Inner Join",
+      "Left Join",
+      "Cross Join"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3 & 4: Self Join joins a table onto itself."
+  },
+  {
+    "id": 39,
+    "question": "39. Which tab lets you preview tables, rename fields, and modify data types before analyzing?",
+    "options": [
+      "Data Source Tab",
+      "Show Me panel",
+      "Toolbar",
+      "Marks Card"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: The Data Source tab handles initial data preview and structure."
+  },
+  {
+    "id": 40,
+    "question": "40. Where is the 'Replace Data Source' option located?",
+    "options": [
+      "Data menu -> Replace Data Source",
+      "File menu",
+      "Help menu",
+      "Server menu"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 3: Data -> Replace Data Source switches connected sources."
+  },
+  {
+    "id": 41,
+    "question": "41. Which chart type is best suited for comparing categorical dimensions?",
+    "options": [
+      "Line Graph",
+      "Bar Graph",
+      "Scatter Plot",
+      "Pie Chart"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 5: Bar graphs are ideal for comparing distinct categories."
+  },
+  {
+    "id": 42,
+    "question": "42. Which chart type is best suited for visualizing trends over time?",
+    "options": [
+      "Bar Graph",
+      "Line Graph",
+      "Tree Map",
+      "Highlight Table"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 5: Line graphs excel at displaying temporal trends and changes over time."
+  },
+  {
+    "id": 43,
+    "question": "43. Which box on the Marks Card adds hover pop-up information to visual elements?",
+    "options": [
+      "Color",
+      "Size",
+      "Label",
+      "Tooltip"
+    ],
+    "correct": 3,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 5: Tooltip displays detail text when hovering over data marks."
+  },
+  {
+    "id": 44,
+    "question": "44. How can you make a worksheet title dynamic based on a filter selection?",
+    "options": [
+      "Insert the field variable into the title text via Insert menu",
+      "Manually retype it",
+      "Rename the workbook",
+      "Duplicate the sheet"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 5: Inserting field parameters into titles creates dynamic headers."
+  },
+  {
+    "id": 45,
+    "question": "45. Which tool calculates date differences, such as 'Time to Ship' = [Ship Date] - [Order Date]?",
+    "options": [
+      "Calculated Field",
+      "Marks Card",
+      "Bins",
+      "Hierarchies"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 5: Analysis -> Create Calculated Field computes custom formulas."
+  },
+  {
+    "id": 46,
+    "question": "46. What are Bins in Tableau?",
+    "options": [
+      "Equal-sized containers that group continuous numeric values to build Histograms",
+      "Quick date filters",
+      "Join methods",
+      "Text variables"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 7: Bins discretize continuous measures into equal intervals for Histograms."
+  },
+  {
+    "id": 47,
+    "question": "47. Which filter option places an interactive control card directly on the view for users?",
+    "options": [
+      "Quick Filter",
+      "Context Filter",
+      "Conditional Filter",
+      "Slicing Filter"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 7: Quick Filters add interactive cards to dynamically filter views."
+  },
+  {
+    "id": 48,
+    "question": "48. What is a Hierarchy in Tableau?",
+    "options": [
+      "A tree-like structure enabling drill-down and roll-up analysis across levels",
+      "A color formatting palette",
+      "A join type",
+      "Password encryption"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 7: Hierarchies organize fields hierarchically (e.g. Country -> State -> City)."
+  },
+  {
+    "id": 49,
+    "question": "49. What is a Dashboard in Tableau?",
+    "options": [
+      "A collection of multiple worksheets in a single view to present insights",
+      "An Excel spreadsheet",
+      "A text document",
+      "A mathematical formula"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 8: Dashboards combine multiple worksheets to tell a comprehensive data story."
+  },
+  {
+    "id": 50,
+    "question": "50. Which file format saves a workbook along with its packaged local data files?",
+    "options": [
+      ".twbx",
+      ".twb",
+      ".csv",
+      ".txt"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 Easy",
+    "explanation": "Lecture 8: .twbx (Packaged Workbook) bundles the viz and data into a single shareable file."
+  },
+  {
+    "id": 51,
+    "question": "51. If you want to compare Sales by Region and color each region differently, where should Region be placed?",
+    "options": [
+      "In Rows and on Color card simultaneously",
+      "In Pages shelf only",
+      "In Help menu",
+      "In Tooltip only"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 2 & 5: Placing Region in Rows splits categories, and putting it on Color assigns unique colors."
+  },
+  {
+    "id": 52,
+    "question": "52. What happens when 'Aggregate Measures' is unchecked under the Analysis menu?",
+    "options": [
+      "Tableau displays raw, unaggregated values for every individual row in the dataset",
+      "It doubles sales figures",
+      "It deletes all measures",
+      "It converts dimensions into numbers"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 2 (Slide 9): Unchecking Aggregate Measures disaggregates data to show raw row records."
+  },
+  {
+    "id": 53,
+    "question": "53. What is the difference between high granularity and low granularity in Tableau?",
+    "options": [
+      "High granularity means more detail and less aggregation; low granularity means less detail and more aggregation",
+      "High granularity means larger numbers",
+      "They are identical",
+      "Applies only to dates"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 2: Granularity is the level of detail; as data becomes less detailed, it becomes more aggregated."
+  },
+  {
+    "id": 54,
+    "question": "54. An Order Date field in Columns displays a (+) icon next to it. What does this signify?",
+    "options": [
+      "The field belongs to a Hierarchy allowing drill-down (Year -> Quarter -> Month)",
+      "The field is corrupted",
+      "It requires a conditional filter",
+      "It has syntax errors"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 2 & 7: The (+) icon indicates a hierarchy that expands down through detail levels."
+  },
+  {
+    "id": 55,
+    "question": "55. What is the difference between 'Convert to Dimension' and 'Convert to Continuous'?",
+    "options": [
+      "Convert to Dimension changes functional role (qualitative/quantitative); Continuous changes formatting (discrete/continuous)",
+      "Both perform the exact same action",
+      "The first deletes the field",
+      "The second changes theme color"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 2: Changing role (Dimension/Measure) is distinct from changing data display (Discrete/Continuous)."
+  },
+  {
+    "id": 56,
+    "question": "56. What is the fundamental difference between Data Cleaning and Data Transformation?",
+    "options": [
+      "Cleaning removes/corrects dirty data; Transformation converts data structure or format",
+      "Cleaning converts to SQL",
+      "Transformation only deletes duplicates",
+      "There is no difference"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 3 (Slide 23): Cleaning fixes bad data; Transformation (Wrangling) changes structure/format."
+  },
+  {
+    "id": 57,
+    "question": "57. Which data cleaning step addresses Null or missing observations?",
+    "options": [
+      "Step 4: Handle missing data (Drop / Impute / Adjust)",
+      "Step 1: De-duplication",
+      "Step 2: Structural errors",
+      "Step 5: QA"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 3: Missing data is handled in Step 4 by dropping, imputing, or adjusting."
+  },
+  {
+    "id": 58,
+    "question": "58. When joining two tables where the key column is named 'Product ID' in Table A and 'Prod ID' in Table B:",
+    "options": [
+      "Tableau will not auto-join; the user must manually select matching key fields",
+      "Tableau deletes Table B",
+      "Tableau renames the DB column",
+      "Creates a map instantly"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 3: Inconsistent field labels require manual key mapping to establish a join."
+  },
+  {
+    "id": 59,
+    "question": "59. Finding 'N/A' and 'Not Applicable' in the same column is an example of which error type?",
+    "options": [
+      "Structural Error (naming inconsistencies)",
+      "Outlier",
+      "Missing Value",
+      "Duplicate Row"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 3: Inconsistent naming conventions for identical categories are structural errors."
+  },
+  {
+    "id": 60,
+    "question": "60. Which Tableau feature allows viewing underlying joined data and copying rows behind a visualization?",
+    "options": [
+      "View Data dialog from Data menu",
+      "Data Blending Tab",
+      "Format Axis",
+      "Marks Card"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 3: View Data displays underlying tabular records for inspection and copying."
+  },
+  {
+    "id": 61,
+    "question": "61. How do you create a Highlight Table colored by Profit and Sales?",
+    "options": [
+      "Place dimensions on Rows/Columns and measure on Text and Color card",
+      "Use Duplicate option",
+      "Use Slicing filter",
+      "Create a hierarchy"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 5: Highlight tables display aggregated numbers in cells colored by measure values."
+  },
+  {
+    "id": 62,
+    "question": "62. What is the purpose of placing a field on the 'Detail' box in the Marks Card?",
+    "options": [
+      "Increases view granularity (detail level) without altering mark color or size",
+      "Changes font style",
+      "Filters the view",
+      "Renames sheet"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 5: Detail adds dimension granularity to the view without applying visual color/size encoding."
+  },
+  {
+    "id": 63,
+    "question": "63. Which chart type is best for analyzing data distribution, spread, and identifying Outliers?",
+    "options": [
+      "Box Plot (Box-and-Whisker Plot)",
+      "Line Graph",
+      "Pie Chart",
+      "Gantt Chart"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 5: Box Plots display statistical distribution, medians, quartiles, and outliers."
+  },
+  {
+    "id": 64,
+    "question": "64. What is the difference between a Tree Map and a Pie Chart?",
+    "options": [
+      "Tree Maps represent proportions using nested rectangles suitable for many categories; Pie Charts suit very few categories",
+      "Pie Charts work best with 50 categories",
+      "Tree Maps are for dates only",
+      "Neither is supported"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 5: Tree Maps organize nested rectangular dimensions effectively for complex categories."
+  },
+  {
+    "id": 65,
+    "question": "65. What does a calculated field with the formula `SUM([Profit]) / SUM([Sales])` represent?",
+    "options": [
+      "Profit Margin",
+      "Time to Ship",
+      "Customer Count",
+      "Total Revenue"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 6: Dividing total aggregated profit by total sales yields the Profit Margin ratio."
+  },
+  {
+    "id": 66,
+    "question": "66. What are Conditional Filters in Tableau?",
+    "options": [
+      "Filters that include/exclude data based on numeric thresholds or custom logical formulas (e.g. [Sales] > 100K)",
+      "Color filters only",
+      "Filters that run on startup",
+      "Automated scan filters"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 7: Conditional Filters apply threshold conditions By Field or By Formula."
+  },
+  {
+    "id": 67,
+    "question": "67. What is a Slicing Filter in Tableau?",
+    "options": [
+      "Filtering data based on dimensions that are NOT present in the view's Rows or Columns",
+      "Splitting a column in half",
+      "Deleting duplicate rows",
+      "Slicing chart graphics"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 7: Slicing filters restrict data along dimensions not structural to the chart view."
+  },
+  {
+    "id": 68,
+    "question": "68. What is the difference between Union and Intersection when combining Sets?",
+    "options": [
+      "Union includes members from both sets; Intersection includes only members common to both",
+      "Union deletes sets",
+      "Intersection sums numbers",
+      "No difference"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 7: Combined Sets support Union, Intersection, and Exception operations."
+  },
+  {
+    "id": 69,
+    "question": "69. What are Parameters and how do they differ from Filters?",
+    "options": [
+      "Parameters are dynamic user-defined values that pass control to formulas, reference lines, and filters",
+      "Parameters are databases",
+      "Parameters are for printing",
+      "Filters cannot be changed"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 7: Parameters pass user inputs to calculations and views across data sources."
+  },
+  {
+    "id": 70,
+    "question": "70. In a Quick Filter, what is the difference between Single Value List and Multi-Value Dropdown?",
+    "options": [
+      "Single Value allows selecting 1 item; Multi-Value allows selecting multiple items via checkboxes",
+      "Single Value is colored",
+      "Both select all items",
+      "Multi-Value deletes filters"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 7: Card display options dictate whether single or multiple selections are allowed."
+  },
+  {
+    "id": 71,
+    "question": "71. How do you apply a dashboard filter to all worksheets embedded within that dashboard?",
+    "options": [
+      "Filter menu -> Apply to Worksheets -> All on Dashboard",
+      "File -> Save",
+      "Marks Card -> Color",
+      "Analysis -> Inspect"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 8: 'All on Dashboard' scope links a filter card across all worksheets on the dashboard."
+  },
+  {
+    "id": 72,
+    "question": "72. What is a Highlight Action in a Tableau Dashboard?",
+    "options": [
+      "An action that visually emphasizes selected marks across related charts while dimming others",
+      "Colors background screen",
+      "Changes font size",
+      "Deletes unselected data"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 8: Highlight actions emphasize selected dimension values across dashboard sheets."
+  },
+  {
+    "id": 73,
+    "question": "73. What is the difference between Fixed Size and Automatic Size for Dashboards?",
+    "options": [
+      "Fixed sets exact pixel dimensions; Automatic dynamically scales the dashboard to fit any screen size",
+      "Automatic locks width",
+      "Fixed adds glowing borders",
+      "No difference"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 8: Automatic Size ensures responsive scaling across various screen resolutions."
+  },
+  {
+    "id": 74,
+    "question": "74. To navigate a user to an external web page when clicking a mark on a dashboard, use:",
+    "options": [
+      "Go to URL Action",
+      "Quick Bin Creation",
+      "Disaggregate Measures",
+      "Replace Source"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 8: URL Actions trigger web links and pass field parameters into URLs."
+  },
+  {
+    "id": 75,
+    "question": "75. Why is exporting work as a Packaged Workbook (.twbx) recommended when emailing files?",
+    "options": [
+      "It packages local data files inside the workbook so recipients don't get missing data errors",
+      "It reduces colors",
+      "Converts charts to text",
+      "Prevents editing"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 8: .twbx files bundle data sources directly, avoiding missing data source errors."
+  },
+  {
+    "id": 76,
+    "question": "76. When filtering a chart by multiple dimensions, how does the order on the Filters Shelf affect execution?",
+    "options": [
+      "Filters are evaluated sequentially according to Tableau's order of execution",
+      "Order has zero impact",
+      "Deletes the last filter",
+      "Changes colors automatically"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 7: Filter order follows Tableau's logical Order of Operations."
+  },
+  {
+    "id": 77,
+    "question": "77. What is the difference between creating Bins manually versus choosing Histogram from 'Show Me'?",
+    "options": [
+      "Show Me automatically generates both the Bin field and Histogram chart in one click",
+      "Manual is always faster",
+      "Show Me creates text tables",
+      "Both require LOD expressions"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 7: Show Me automates bin creation and histogram generation simultaneously."
+  },
+  {
+    "id": 78,
+    "question": "78. On a Dashboard, how do you prevent a specific chart (e.g. Map) from reacting to a Region filter?",
+    "options": [
+      "Exclude that specific worksheet via Apply to Worksheets -> Selected Worksheets",
+      "Delete the map",
+      "Lock editing",
+      "Rename the file"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 8: Customizing filter scope allows excluding designated sheets from filtering."
+  },
+  {
+    "id": 79,
+    "question": "79. If a field displays a Globe icon next to it in the Data Pane, it indicates:",
+    "options": [
+      "Tableau automatically recognized its Geographic Role (Country, State, Zip) for mapping",
+      "The field is corrupted",
+      "It must be converted to a measure",
+      "Requires SQL parsing"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 8: Globe icons denote geographic roles used for building map views."
+  },
+  {
+    "id": 80,
+    "question": "80. What happens when you select 'Export Packaged Workbook' from the File menu?",
+    "options": [
+      "Packs the workbook and local data sources into a single compressed .twbx file",
+      "Exports a PNG image",
+      "Prints the sheet",
+      "Encrypts the file"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 Medium",
+    "explanation": "Lecture 8: Export Packaged Workbook bundles data into a shareable .twbx file."
+  },
+  {
+    "id": 81,
+    "question": "81. In Tableau's Order of Operations, which filter type is evaluated BEFORE standard Dimension Filters?",
+    "options": [
+      "Context Filters",
+      "Dimension Filters",
+      "Measure Filters",
+      "Table Calculation Filters"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 7: Context Filters are evaluated first, creating a temporary context table before dimension filters."
+  },
+  {
+    "id": 82,
+    "question": "82. What is the effect of a `FIXED` Level of Detail (LOD) expression on aggregation?",
+    "options": [
+      "Computes values at specified dimensions regardless of dimensions present in the View LOD",
+      "Always appends view dimensions",
+      "Excludes financial measures",
+      "Disaggregates data entirely"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 2 (Slide 11): FIXED LOD expressions calculate aggregations using only specified dimensions, ignoring view LOD."
+  },
+  {
+    "id": 83,
+    "question": "83. What is the primary benefit of an `INCLUDE` LOD expression?",
+    "options": [
+      "Adds finer specified dimensions to the view's aggregation level without changing visual marks",
+      "Ignores all report dimensions",
+      "Returns static constants",
+      "Converts string to float"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 2: INCLUDE evaluates at specified dimensions in addition to whatever dimensions are in the view."
+  },
+  {
+    "id": 84,
+    "question": "84. What is the primary purpose of an `EXCLUDE` LOD expression?",
+    "options": [
+      "Omits specific dimensions from aggregation calculations even if they are present in the view",
+      "Renames column headers",
+      "Adds context filters",
+      "Merges servers"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 2: EXCLUDE removes specific dimensions from aggregation calculations."
+  },
+  {
+    "id": 85,
+    "question": "85. How does applying a Context Filter before a Dimension Filter on a large dataset impact performance?",
+    "options": [
+      "Context Filter creates a temporary reduced dataset in memory, significantly speeding up subsequent filters",
+      "Causes system lag",
+      "Crashes Tableau",
+      "Has zero impact on speed"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 7: Context filters restrict dataset size early, improving query performance dramatically."
+  },
+  {
+    "id": 86,
+    "question": "86. In Data Blending, what happens if the secondary data source contains multiple matching rows for a single primary row?",
+    "options": [
+      "Tableau displays an asterisk (*) in the view indicating multiple non-aggregated values",
+      "An error crashes the application",
+      "Values auto-sum automatically",
+      "Rows are deleted"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 3 & 4: Unaggregated one-to-many matches in Data Blending return an asterisk (*) placeholder."
+  },
+  {
+    "id": 87,
+    "question": "87. What is a fundamental distinction between Relationships and traditional Joins in modern Tableau?",
+    "options": [
+      "Relationships maintain independent table detail levels and aggregate contextually without row duplication",
+      "Joins are always faster",
+      "Relationships work on dates only",
+      "Joins don't combine tables"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 3: Relationships combine data logically without forced physical joins, preventing row fan-out/duplication."
+  },
+  {
+    "id": 88,
+    "question": "88. When handling missing data, what is the primary risk associated with Data Imputation (filling missing values)?",
+    "options": [
+      "Data integrity may be compromised by analyzing assumptions rather than true observations",
+      "File size increases 10x",
+      "Chart colors turn black",
+      "Table gets deleted"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 3 (Slide 26): Imputing missing values operates on assumptions, risking data validity."
+  },
+  {
+    "id": 89,
+    "question": "89. Which data quality characteristic ensures all measurements use the exact same unit of measure?",
+    "options": [
+      "Uniformity",
+      "Accuracy",
+      "Completeness",
+      "Validity"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 3 (Slide 28): Uniformity specifies that data uses consistent measurement units across records."
+  },
+  {
+    "id": 90,
+    "question": "90. In Data Blending, what does a broken link icon next to a secondary dimension indicate?",
+    "options": [
+      "The dimension is not currently active as a blending relationship link",
+      "The workbook file is corrupt",
+      "Data access is blocked",
+      "The field was deleted"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 3: The link icon toggles whether a dimension is used as a linking key between sources."
+  },
+  {
+    "id": 91,
+    "question": "91. When creating a Combined Set using 'Set 1 except Set 2', what members are included?",
+    "options": [
+      "Members in Set 1 that do NOT exist in Set 2",
+      "All members of both sets",
+      "Only intersecting members",
+      "Always empty"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 7 (Slide 51): The 'Except' option takes values in Set 1 while excluding Set 2 members."
+  },
+  {
+    "id": 92,
+    "question": "92. How does creating Bins from a continuous measure impact view granularity?",
+    "options": [
+      "Discretizes continuous ranges into equal discrete containers without losing underlying distributions",
+      "Completes machine values",
+      "Converts numbers to non-sortable text",
+      "Removes negative values"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 7: Bins convert continuous measures into discrete range buckets."
+  },
+  {
+    "id": 93,
+    "question": "93. If a view displays Sales by Region and Month, how does adding Category to the 'Detail' mark card affect it?",
+    "options": [
+      "Increases aggregation detail (higher granularity) by splitting mark points per category without changing colors",
+      "Removes X axis",
+      "Converts chart to map",
+      "Disaggregates data"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 5: Detail breaks marks into finer granularity without applying color/size encodings."
+  },
+  {
+    "id": 94,
+    "question": "94. What is the consequence of unchecking 'Aggregate Measures' on a dataset with 2 million rows?",
+    "options": [
+      "Tableau renders 2 million individual marks, putting extreme stress on memory and slowing rendering",
+      "Speeds up application",
+      "Auto-saves workbook",
+      "Converts data to images"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 2: Disaggregating massive datasets forces Tableau to plot every raw record individually."
+  },
+  {
+    "id": 95,
+    "question": "95. When combining a Conditional Filter and a Context Filter, which is executed first?",
+    "options": [
+      "The Context Filter executes first to restrict data scope, then the Conditional Filter evaluates on the result",
+      "Conditional filter executes first",
+      "Dimension filter overrides context",
+      "Processor halts"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 7: Context Filters always precede Conditional and Dimension filters in execution order."
+  },
+  {
+    "id": 96,
+    "question": "96. What does the 'Show Highlighter' control do on a chart?",
+    "options": [
+      "Visually highlights the selected dimension series while dimming others in the background",
+      "Deletes unselected data",
+      "Changes workbook theme",
+      "Prints report"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 5: Highlighters emphasize target items visually while keeping background context visible."
+  },
+  {
+    "id": 97,
+    "question": "97. What is a primary advantage of using a Parameter in a view compared to a standard Quick Filter?",
+    "options": [
+      "Parameters work across multiple independent data sources and can be referenced in Calculated Fields",
+      "Quick Filter works without joining",
+      "Parameter auto-deletes duplicates",
+      "No difference"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 7: Parameters are global user inputs accessible across data sources and formulas."
+  },
+  {
+    "id": 98,
+    "question": "98. What is the function of a 'Go to URL Action' on a Dashboard?",
+    "options": [
+      "Navigates to an external website or report, passing field values as URL parameters",
+      "Saves file to disk",
+      "Changes application language",
+      "Closes Tableau"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 8: URL Actions trigger external links and pass data parameters dynamically."
+  },
+  {
+    "id": 99,
+    "question": "99. Which filter type has the LOWEST execution priority in Tableau's Order of Operations?",
+    "options": [
+      "Table Calculation Filters",
+      "Context Filters",
+      "Dimension Filters",
+      "Extract Filters"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 7: Table Calculation Filters are evaluated last, after all aggregations and table calculations."
+  },
+  {
+    "id": 100,
+    "question": "100. What does 'Apply to Worksheets -> All on Dashboard' achieve for a filter card?",
+    "options": [
+      "Dynamically applies the filter selection to all embedded worksheets sharing the dashboard",
+      "Applies filter across all company servers",
+      "Deletes other charts",
+      "Locks dashboard"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 Hard",
+    "explanation": "Lecture 8: 'All on Dashboard' synchronizes filter controls across all dashboard sheets."
+  }
+];
+
+        let chosenDifficulty = 'all';
+        let currentFilteredList = [];
+        let currentIndex = 0;
+        let userAnswers = {}; // q_id -> { selected: idx, isCorrect: bool }
+
+        function selectDifficulty(level, cardElem) {
+            chosenDifficulty = level;
+            document.querySelectorAll(".select-card").forEach(c => c.classList.remove("selected"));
+            cardElem.classList.add("selected");
+        }
+
+        function startExam() {
+            if (chosenDifficulty === 'all') {
+                currentFilteredList = [...allQuestions];
+            } else {
+                currentFilteredList = allQuestions.filter(q => q.difficulty === chosenDifficulty);
+            }
+
+            currentIndex = 0;
+            userAnswers = {};
+
+            document.getElementById("start-screen").style.display = "none";
+            document.getElementById("exam-screen").style.display = "grid";
+            document.getElementById("quiz-main-view").style.display = "block";
+            document.getElementById("result-screen").style.display = "none";
+
+            renderGridPalette();
+            loadQuestion();
+        }
+
+        function backToStart() {
+            document.getElementById("start-screen").style.display = "block";
+            document.getElementById("exam-screen").style.display = "none";
+        }
+
+        function renderGridPalette() {
+            const palette = document.getElementById("grid-palette");
+            palette.innerHTML = "";
+
+            currentFilteredList.forEach((q, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "q-num-btn";
+                btn.innerText = idx + 1;
+
+                if (idx === currentIndex) btn.classList.add("active");
+
+                if (userAnswers[q.id]) {
+                    if (userAnswers[q.id].isCorrect) btn.classList.add("answered-correct");
+                    else btn.classList.add("answered-wrong");
+                }
+
+                btn.onclick = () => {
+                    currentIndex = idx;
+                    renderGridPalette();
+                    loadQuestion();
+                };
+
+                palette.appendChild(btn);
+            });
+        }
+
+        function loadQuestion() {
+            const q = currentFilteredList[currentIndex];
+            document.getElementById("question-count").innerText = `Question ${currentIndex + 1} of ${currentFilteredList.length}`;
+            document.getElementById("question-text").innerText = q.question;
+            document.getElementById("progress-bar").style.width = `${((currentIndex + 1) / currentFilteredList.length) * 100}%`;
+
+            // Badge styling
+            const badge = document.getElementById("diff-badge");
+            badge.innerText = q.difficultyLabel;
+            badge.className = "badge " + (q.difficulty === 'easy' ? 'badge-easy' : q.difficulty === 'medium' ? 'badge-medium' : 'badge-hard');
+
+            const optionsContainer = document.getElementById("options-container");
+            optionsContainer.innerHTML = "";
+            document.getElementById("explanation-box").style.display = "none";
+
+            const nextBtn = document.getElementById("next-btn");
+            nextBtn.innerText = "Confirm Answer ➡️";
+            nextBtn.disabled = true;
+
+            const existingAns = userAnswers[q.id];
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.innerHTML = `<span>${opt}</span> <span style="opacity: 0.6;">[ ${String.fromCharCode(65 + idx)} ]</span>`;
+
+                if (existingAns) {
+                    btn.disabled = true;
+                    if (idx === q.correct) btn.classList.add("correct");
+                    if (idx === existingAns.selected && idx !== q.correct) btn.classList.add("wrong");
+                } else {
+                    btn.onclick = () => selectOption(idx, btn);
+                }
+
+                optionsContainer.appendChild(btn);
+            });
+
+            if (existingAns) {
+                document.getElementById("explanation-text").innerText = q.explanation;
+                document.getElementById("explanation-box").style.display = "block";
+                nextBtn.innerText = currentIndex < currentFilteredList.length - 1 ? "Next Question ➡️" : "View Results 🏆";
+                nextBtn.disabled = false;
+            }
+
+            updateStats();
+        }
+
+        function selectOption(idx, btn) {
+            document.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
+            btn.classList.add("selected");
+            btn.dataset.selected = idx;
+            document.getElementById("next-btn").disabled = false;
+        }
+
+        function handleNextQuestion() {
+            const q = currentFilteredList[currentIndex];
+            const nextBtn = document.getElementById("next-btn");
+
+            if (!userAnswers[q.id]) {
+                const selectedBtn = document.querySelector(".option-btn.selected");
+                if (!selectedBtn) return;
+
+                const selectedIdx = parseInt(selectedBtn.dataset.selected);
+                const isCorrect = (selectedIdx === q.correct);
+
+                userAnswers[q.id] = { selected: selectedIdx, isCorrect: isCorrect };
+
+                renderGridPalette();
+                loadQuestion();
+            } else {
+                if (currentIndex < currentFilteredList.length - 1) {
+                    currentIndex++;
+                    renderGridPalette();
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderGridPalette();
+                loadQuestion();
+            }
+        }
+
+        function updateStats() {
+            let totalCorrect = 0;
+            currentFilteredList.forEach(q => {
+                if (userAnswers[q.id] && userAnswers[q.id].isCorrect) {
+                    totalCorrect++;
+                }
+            });
+
+            document.getElementById("score-counter").innerText = `${totalCorrect} / ${currentFilteredList.length}`;
+        }
+
+        function showResults() {
+            document.getElementById("quiz-main-view").style.display = "none";
+            document.getElementById("result-screen").style.display = "block";
+
+            let totalCorrect = 0;
+            currentFilteredList.forEach(q => {
+                if (userAnswers[q.id] && userAnswers[q.id].isCorrect) {
+                    totalCorrect++;
+                }
+            });
+
+            const percentage = ((totalCorrect / currentFilteredList.length) * 100).toFixed(1);
+            document.getElementById("final-score").innerText = `${totalCorrect} / ${currentFilteredList.length}`;
+
+            const breakdown = `
+                Total Correct Answers: <strong>${totalCorrect}</strong> out of <strong>${currentFilteredList.length}</strong><br>
+                Overall Score Percentage: <strong>${percentage}%</strong>
+            `;
+            document.getElementById("result-breakdown").innerHTML = breakdown;
+        }
+    </script>
+</body>
+</html>
