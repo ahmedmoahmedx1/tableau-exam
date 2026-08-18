@@ -1,0 +1,2097 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة امتحانات Tableau التفاعلية الشاملة (100 سؤال)</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --accent: #38bdf8;
+            --easy-bg: #064e3b;
+            --easy-color: #34d399;
+            --med-bg: #78350f;
+            --med-color: #fbbf24;
+            --hard-bg: #7f1d1d;
+            --hard-color: #f87171;
+            --correct-bg: #064e3b;
+            --correct-border: #10b981;
+            --wrong-bg: #7f1d1d;
+            --wrong-border: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* SCREEN 1: START SELECTION SCREEN */
+        .start-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .start-title {
+            font-size: 2.2rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .start-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 35px;
+        }
+
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        @media (max-width: 650px) {
+            .selection-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .select-card {
+            background-color: #0f172a;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            padding: 25px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: right;
+            position: relative;
+        }
+
+        .select-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            background-color: #1e293b;
+        }
+
+        .select-card.selected {
+            border-color: var(--accent);
+            background-color: #1e293b;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        .select-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .select-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .card-count {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: normal;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #2563eb, #0284c7);
+            color: white;
+            border: none;
+            padding: 16px 45px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .start-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 12px 25px rgba(37, 99, 235, 0.6);
+        }
+
+        /* SCREEN 2: EXAM SCREEN */
+        .exam-wrapper {
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            display: none;
+        }
+
+        @media (max-width: 850px) {
+            .exam-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .change-mode-btn {
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            color: var(--accent);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: background 0.2s ease;
+        }
+
+        .change-mode-btn:hover {
+            background-color: #1e293b;
+        }
+
+        .grid-palette {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .q-num-btn {
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 0;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .q-num-btn.active {
+            border-color: var(--accent);
+            background-color: var(--primary);
+            font-weight: bold;
+        }
+
+        .q-num-btn.answered-correct {
+            background-color: var(--easy-bg);
+            border-color: var(--easy-color);
+        }
+
+        .q-num-btn.answered-wrong {
+            background-color: var(--hard-bg);
+            border-color: var(--hard-color);
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .badge-easy {
+            background-color: var(--easy-bg);
+            color: var(--easy-color);
+            border: 1px solid var(--easy-color);
+        }
+
+        .badge-medium {
+            background-color: var(--med-bg);
+            color: var(--med-color);
+            border: 1px solid var(--med-color);
+        }
+
+        .badge-hard {
+            background-color: var(--hard-bg);
+            color: var(--hard-color);
+            border: 1px solid var(--hard-color);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #2563eb);
+            width: 1%;
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #f1f5f9;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .option-btn {
+            background-color: #0f172a;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px 20px;
+            color: var(--text-color);
+            text-align: right;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background-color: #1e293b;
+        }
+
+        .option-btn.selected {
+            border-color: var(--accent);
+            background-color: #1e293b;
+        }
+
+        .option-btn.correct {
+            background-color: var(--correct-bg);
+            border-color: var(--correct-border);
+            color: #ecfdf5;
+        }
+
+        .option-btn.wrong {
+            background-color: var(--wrong-bg);
+            border-color: var(--wrong-border);
+            color: #fef2f2;
+        }
+
+        .explanation {
+            background-color: #090d16;
+            border-right: 4px solid var(--accent);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .explanation strong {
+            color: var(--accent);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .footer-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:disabled {
+            background-color: #475569;
+            cursor: not-allowed;
+        }
+
+        .result-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .score-circle {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #0284c7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 20px auto;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN 1: START SELECTION SCREEN -->
+    <div id="start-screen" class="start-container">
+        <h1 class="start-title">منصة امتحانات Tableau الشاملة</h1>
+        <p class="start-subtitle">حدد نوع واختبار الأسئلة التي ترغب بحلها أولاً للبدء</p>
+
+        <div class="selection-grid">
+            <div class="select-card selected" onclick="selectDifficulty('all', this)">
+                <h3>
+                    <span>📋 كل الأسئلة (الشامل)</span>
+                    <span class="card-count">100 سؤال</span>
+                </h3>
+                <p>امتحان متكامل يشمل الـ 50 سؤال سهل، الـ 30 متوسط، والـ 20 صعب يغطي المنهج بالكامل.</p>
+            </div>
+
+            <div class="select-card" onclick="selectDifficulty('easy', this)">
+                <h3>
+                    <span>🟢 المستوى السهل</span>
+                    <span class="card-count">50 سؤال</span>
+                </h3>
+                <p>أسئلة المفاهيم والمصطلحات والتعاريف الأساسية وواجهة البرنامج والبيانات.</p>
+            </div>
+
+            <div class="select-card" onclick="selectDifficulty('medium', this)">
+                <h3>
+                    <span>🟡 المستوى المتوسط</span>
+                    <span class="card-count">30 سؤال</span>
+                </h3>
+                <p>أسئلة التطبيقات والتنظيف وفلاتر الـ Quick Filters والرسوم البيانية والـ Dashboards.</p>
+            </div>
+
+            <div class="select-card" onclick="selectDifficulty('hard', this)">
+                <h3>
+                    <span>🔴 المستوى الصعب</span>
+                    <span class="card-count">20 سؤال</span>
+                </h3>
+                <p>أسئلة الـ LOD المتقدمة وترتيب تنفيذ الفلاتر والعلاقات البنائية المعقدة.</p>
+            </div>
+        </div>
+
+        <button class="start-btn" onclick="startExam()">ابدأ الامتحان الآن 🚀</button>
+    </div>
+
+    <!-- SCREEN 2: DEDICATED EXAM SCREEN -->
+    <div id="exam-screen" class="exam-wrapper">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <button class="change-mode-btn" onclick="backToStart()">⬅️ تغيير نوع الامتحان</button>
+
+            <h3>لوحة الأسئلة</h3>
+            <div id="grid-palette" class="grid-palette">
+                <!-- Dynamic Jump Buttons -->
+            </div>
+
+            <div style="margin-top: 20px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+                النتيجة الحالية: <strong id="score-counter" style="color: var(--accent);">0</strong>
+            </div>
+        </div>
+
+        <!-- Main Quiz Card -->
+        <div class="quiz-card">
+            <div id="quiz-main-view">
+                <div class="quiz-header">
+                    <span id="diff-badge" class="badge badge-easy">🟢 سهل</span>
+                    <span id="question-count" style="color: var(--accent); font-weight: bold;">السؤال 1 من 100</span>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+
+                <div class="question-box">
+                    <h2 id="question-text" class="question-text">جاري تحضير السؤال...</h2>
+                </div>
+
+                <div id="options-container" class="options-list">
+                    <!-- Dynamic Options -->
+                </div>
+
+                <div id="explanation-box" class="explanation">
+                    <strong>💡 الشرح والتوضيح العلمي:</strong>
+                    <span id="explanation-text"></span>
+                </div>
+
+                <div class="footer-nav">
+                    <button class="btn" onclick="prevQuestion()" style="background-color: #334155;">⬅️ السابق</button>
+                    <button id="next-btn" class="btn" onclick="handleNextQuestion()" disabled>تأكيد الإجابة ➡️</button>
+                </div>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="result-screen" class="result-screen">
+                <h1 style="color: var(--accent); margin-bottom: 10px;">نتيجة الامتحان</h1>
+                <p style="color: var(--text-muted);">ملخص أداء الاختبار المختار</p>
+
+                <div class="score-circle" id="final-score">0</div>
+
+                <div id="result-breakdown" style="margin: 20px 0; font-size: 1.1rem; line-height: 1.8;">
+                    <!-- Detailed Breakdown -->
+                </div>
+
+                <button class="btn" onclick="backToStart()" style="margin-top: 20px;">العودة لصفحة الاختيار الرئيسية 🔄</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allQuestions = [
+  {
+    "id": 1,
+    "question": "1. ما هو برنامج Tableau بشكل رئيسي؟",
+    "options": [
+      "منصة لذكاء الأعمال وتحليل البيانات بصرياً",
+      "برنامج لمعالجة النصوص",
+      "نظام تشغيل للمؤسسات",
+      "برنامج لتصحيح الصور"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 1: Tableau هو منصة BI رائدة لرؤية البيانات وفهمها وإنشاء اللوحات التفاعلية."
+  },
+  {
+    "id": 2,
+    "question": "2. أي من منتجات Tableau التالية مجاني ومخصص لمشاركة الرسوم مع الجمهور؟",
+    "options": [
+      "Tableau Desktop",
+      "Tableau Server",
+      "Tableau Public",
+      "Tableau Online"
+    ],
+    "correct": 2,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 1: Tableau Public هو النسخة المجانية للمشاركة العامة والمشاريع الشخصية."
+  },
+  {
+    "id": 3,
+    "question": "3. ما هو المنتَج المخصص لعمليات تنظيف وتعديل البيانات قبل استيرادها لـ Tableau Desktop؟",
+    "options": [
+      "Tableau Prep",
+      "Tableau Server",
+      "Tableau Reader",
+      "Tableau Online"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 1: Tableau Prep مصمم خصيصاً لتنظيف وإعادة تشكيل البيانات Data Prep."
+  },
+  {
+    "id": 4,
+    "question": "4. أي أداة تُمكّن المؤسسات من مشاركة التقارير داخلياً على سيرفرات خاصة بالشركة؟",
+    "options": [
+      "Tableau Server",
+      "Tableau Public",
+      "Tableau Prep",
+      "Tableau Mobile"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 1: Tableau Server يُستخدم على مستوى المؤسسات للمشاركة والتعاون على سيرفر خاص."
+  },
+  {
+    "id": 5,
+    "question": "5. مقارنةً بـ Power BI، يتميز Tableau بـ:",
+    "options": [
+      "أنه مجاني تماماً للجميع",
+      "تخصيص ورسوم بيانية أكثر تعقيداً ودقة",
+      "أنه لا يحتاج أي تعليم أو خبرة",
+      "عدم دعمه لقواعد البيانات"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 1: Tableau يوفر رسوماً متقدمة وعالية التخصيص مقارنة بالأدوات الأخرى."
+  },
+  {
+    "id": 6,
+    "question": "6. أي جزء في شاشة Connect Panel يسمح بفتح ملفات العمل النموذجية المرفقة مسبقاً مع البرنامج؟",
+    "options": [
+      "Sample Workbooks",
+      "Saved Sources",
+      "Connect to Server",
+      "Discover"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 1: Sample Workbooks تحتوي ملفات عينات مثل Sample - Superstore."
+  },
+  {
+    "id": 7,
+    "question": "7. أي منصة سحابية من Tableau تقدم ميزات السيرفر دون الحاجة لإدارة سيرفرات داخلية بالمؤسسة؟",
+    "options": [
+      "Tableau Online",
+      "Tableau Desktop",
+      "Tableau Prep",
+      "Tableau Public"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 1: Tableau Online هي النسخة السحابية المدارة من السيرفر."
+  },
+  {
+    "id": 8,
+    "question": "8. أي من الأدوات التالية تمتاز بدمجها القوي جداً مع منتجات مايكروسوفت واقتصاديـتها؟",
+    "options": [
+      "Power BI",
+      "Tableau Desktop",
+      "Tableau Server",
+      "Tableau Prep"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 1: Power BI أداة مايكروسوفت التنافسية."
+  },
+  {
+    "id": 9,
+    "question": "9. أين تقع أزرار التحكم والربط بمصادر البيانات عند فتح Tableau في الشاشة الرئيسية؟",
+    "options": [
+      "في Connect Pane على اليسار",
+      "في Marks Card",
+      "في قائمة Help",
+      "في شريط الأرفف"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 1: شريط Connect Panel الأيسر يضم خيارات الاتصال بالبيانات."
+  },
+  {
+    "id": 10,
+    "question": "10. ما الميزة الأساسية لـ Google Data Studio (Looker) مقارنة بـ Tableau؟",
+    "options": [
+      "أنه مجاني تماماً ومتكامل مع خدمات جوجل",
+      "رسوماته أكثر تعقيداً من تابلوه",
+      "سرعته مع البيانات الضخمة",
+      "دعمه للأنظمة النصية"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 1: Google Data Studio أداة مجانية للتحليلات البسيطة."
+  },
+  {
+    "id": 11,
+    "question": "11. ما هي الوظيفة الرئيسية للـ Dimensions في Tableau؟",
+    "options": [
+      "تمثيل بيانات كمية حسابية",
+      "تقديم سياق وفئات نوعية وصفية للبيانات",
+      "حساب المتوسطات فقط",
+      "إنشاء المحاور المستمرة"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: Dimensions هي بيانات نوعية (Categorical) توفر السياق مثل الأسماء والتواريخ."
+  },
+  {
+    "id": 12,
+    "question": "12. ما هي الوظيفة الرئيسية للـ Measures في Tableau؟",
+    "options": [
+      "تمثيل قيم عدديـة كمية قابلة للتجميع الحسابي",
+      "تمثيل النصوص وأسماء العملاء",
+      "تحديد أسماء الدول فقط",
+      "تلوين الخلفية"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: Measures هي مقاييس عدديـة كمية قابلة للجمع والحساب."
+  },
+  {
+    "id": 13,
+    "question": "13. ما هو لون الحبوب (Pills) التي تمثل الحقول المنفصلة (Discrete)؟",
+    "options": [
+      "أخضر",
+      "أزرق",
+      "أحمر",
+      "أصفر"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: الحقول المنفصلة Discrete يكون لون الـ Pill الخاص بها أزرق دائماً."
+  },
+  {
+    "id": 14,
+    "question": "14. ما هو لون الحبوب (Pills) التي تمثل الحقول المستمرة (Continuous)؟",
+    "options": [
+      "أزرق",
+      "أخضر",
+      "برتقالي",
+      "بنفسجي"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: الحقول المستمرة Continuous يكون لون الـ Pill الخاص بها أخضر دائماً."
+  },
+  {
+    "id": 15,
+    "question": "15. ما هو التجميع الافتراضي (Default Aggregation) للمقاييس عند سحبها في Tableau؟",
+    "options": [
+      "AVG",
+      "COUNT",
+      "SUM",
+      "MEDIAN"
+    ],
+    "correct": 2,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: التجميع الافتراضي لأي Measure هو SUM."
+  },
+  {
+    "id": 16,
+    "question": "16. أي شريط في واجهة Tableau يحتوي على خيارات الملفات والتنسيق والسيرفر والمساعدة؟",
+    "options": [
+      "Toolbar",
+      "Menu Bar",
+      "Data Pane",
+      "Marks Card"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: Menu Bar هو الشريط العلوي الرئيسي بالبرنامج."
+  },
+  {
+    "id": 17,
+    "question": "17. ماذا تنشئ الحقول المنفصلة (Discrete) على الرسم البياني؟",
+    "options": [
+      "محاور مستمرة (Axes)",
+      "رؤوس قطاعات وفئات (Headers)",
+      "خطوط اتجاه",
+      "خرائط حرارية فقط"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: Discrete تنشئ رؤوس فئات Headers بينما Continuous تنشئ المحاور Axes."
+  },
+  {
+    "id": 18,
+    "question": "18. ماذا تنشئ الحقول المستمرة (Continuous) على الرسم البياني؟",
+    "options": [
+      "رؤوس قطاعات (Headers)",
+      "محاور مستمرة (Axes)",
+      "مجموعات زرقاء",
+      "جدول نصوص"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: الحقول المستمرة تنشئ محاور عدديـة مستمرة Axes."
+  },
+  {
+    "id": 19,
+    "question": "19. أين توجد الأبعاد (Dimensions) في Data Pane افتراضياً؟",
+    "options": [
+      "في الجزء السفلي",
+      "في الجزء العلوي",
+      "داخل الـ Marks Card",
+      "في شريط الأدوات"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: تظهر الأبعاد Dimensions في أعلى Data Pane وتليها المقاييس Measures بالأسفل."
+  },
+  {
+    "id": 20,
+    "question": "20. ماذا يطلق على الصف الواحد في جدول البيانات؟",
+    "options": [
+      "Record (سجل)",
+      "Field (حقل)",
+      "Pill (حبة)",
+      "Shelf (رف)"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: الصف الواحد يمثل Record (سجل) بينما العمود يمثل Field (حقل)."
+  },
+  {
+    "id": 21,
+    "question": "21. ماذا يطلق على العمود الواحد في جدول البيانات؟",
+    "options": [
+      "Field (حقل)",
+      "Record (سجل)",
+      "Dashboard",
+      "Sheet"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: العمود يمثل حقل Field في الجدول."
+  },
+  {
+    "id": 22,
+    "question": "22. ما هو زر التراجع التلقائي في شريط Toolbar بالبرنامج؟",
+    "options": [
+      "Undo icon",
+      "Redo icon",
+      "Show Me",
+      "Swap"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: زر Undo يلغي آخر خطوة تم تنفيذها."
+  },
+  {
+    "id": 23,
+    "question": "23. ما هي العلامة أو الأداة المخصصة للتحكم بألوان وحجم وتسميات العناصر الرسمية بالصفحة؟",
+    "options": [
+      "Marks Card",
+      "Data Pane",
+      "Status Bar",
+      "Filters Shelf"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: Marks Card يحتوي أزرار التلوين والتكبير والتحديد."
+  },
+  {
+    "id": 24,
+    "question": "24. ما القائمة العلوية التي تتيح تفعيل أو إلغاء تجميع المقاييس (Aggregate Measures)؟",
+    "options": [
+      "Analysis menu",
+      "File menu",
+      "View menu",
+      "Help menu"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: قائمة Analysis تضم خيار Aggregate Measures."
+  },
+  {
+    "id": 25,
+    "question": "25. كيف يظهر حقل التواريخ عادة عند تحميله لأول مرة في الأبعاد؟",
+    "options": [
+      "Discrete Dimension باللون الأزرق على مستوى السنة",
+      "Measure أخضر",
+      "Pill أحمر",
+      "Filter ملغي"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 2: التواريخ تحمل كـ Discrete Dimensions باللون الأزرق على مستوى السنوات."
+  },
+  {
+    "id": 26,
+    "question": "26. أي مما يلي يعد مثالاً على ملف مسطح (Flat File) يمكن لـ Tableau الاتصال به؟",
+    "options": [
+      "Excel (.xlsx)",
+      "MySQL",
+      "Google BigQuery",
+      "Snowflake"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: ملفات Excel و CSV تعتبر Flat Files."
+  },
+  {
+    "id": 27,
+    "question": "27. ما هي العملية التي تعنى بإزالة البيانات غير الصحيحة أو المكررة من البيانات؟",
+    "options": [
+      "Data Transformation",
+      "Data Cleaning",
+      "Data Viz",
+      "Data Modeling"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: Data Cleaning هي عملية إزالة أو تصحيح البيانات الخاطئة والمكررة."
+  },
+  {
+    "id": 28,
+    "question": "28. كم عدد الخصائص الرئيسية لجودة البيانات (Data Quality Characteristics)؟",
+    "options": [
+      "3",
+      "5",
+      "10",
+      "2"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: خصائص جودة البيانات الخمس هي Validity, Accuracy, Completeness, Consistency, Uniformity."
+  },
+  {
+    "id": 29,
+    "question": "29. أي نوع من أنواع الـ Joins يعيد الصفوف المتطابقة فقط من كلا الجدولين؟",
+    "options": [
+      "Left Join",
+      "Right Join",
+      "Inner Join",
+      "Full Outer Join"
+    ],
+    "correct": 2,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: Inner Join يدمج فقط الصفوف التي تحقق التوافق بين الجدولين."
+  },
+  {
+    "id": 30,
+    "question": "30. أي نوع Joins يعيد جميع البيانات من الجدول الأيسر مع البيانات المتطابقة من الأيمن؟",
+    "options": [
+      "Left Outer Join",
+      "Right Outer Join",
+      "Inner Join",
+      "Self Join"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: Left Outer Join يحتفظ بجميع صفوف الجدول الأيسر."
+  },
+  {
+    "id": 31,
+    "question": "31. ما الأداة المستخدمة لتقسيم نص مدمج يحتوي على محدد مثل ':' إلى عمودين؟",
+    "options": [
+      "Split Text to Columns",
+      "Data Blending",
+      "Replace Source",
+      "Group"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: خيار Split يقسم النصوص المدمجة بناءً على الفواصل والرموز."
+  },
+  {
+    "id": 32,
+    "question": "32. ماذا يعني ظهور علامة تعجب حمراء (!) بجانب حقل بعد استبدال مصدر البيانات؟",
+    "options": [
+      "أن الحقل مكرر",
+      "أن الحقل غير موجود في مصدر البيانات الجديد",
+      "أن الحقل يحتاج تجميع",
+      "أن الحقل أزرق"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: علامة التعجب الحمراء تشير إلى أن الحقل لا معنى له أو غير موجود بالمصدر الجديد."
+  },
+  {
+    "id": 33,
+    "question": "33. كم عدد الصفوف التي يعرضها نافذة View Data افتراضياً؟",
+    "options": [
+      "100",
+      "1000",
+      "5000",
+      "10000"
+    ],
+    "correct": 2,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: تعرض نافذة View Data حتى 5000 صف افتراضياً."
+  },
+  {
+    "id": 34,
+    "question": "34. ما فائدة خيار Duplicate لعناوين شيتات العمل (Worksheets)؟",
+    "options": [
+      "حذف الشيت",
+      "إنشاء نسخة مطابقة تماماً من ورقة العمل الحالية",
+      "تصدير الملف لسيرفر",
+      "قفل التعديل"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: Duplicate تنشئ نسخة طبق الأصل من الشيت لتسهيل التعديل علي هـا."
+  },
+  {
+    "id": 35,
+    "question": "35. أي خاصية من خصائص جودة البيانات تعبر عن أن البيانات قريبة من القيم الحقيقية؟",
+    "options": [
+      "Accuracy (الدقة)",
+      "Validity",
+      "Uniformity",
+      "Completeness"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: Accuracy تضمن اقتراب البيانات من القيمة الحقيقية الفعلية."
+  },
+  {
+    "id": 36,
+    "question": "36. أي خاصية جودة تعبر عن اكتمال وجود جميع الحقول المطلوبة وعدم فقدان السجلات؟",
+    "options": [
+      "Completeness (الاستكمال)",
+      "Validity",
+      "Uniformity",
+      "Accuracy"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: Completeness تعبر عن نسبة كمال وجود البيانات."
+  },
+  {
+    "id": 37,
+    "question": "37. ما الخيار المستخدم لإضافة ورقة عمل جديدة New Worksheet بأسفل الواجهة؟",
+    "options": [
+      "أيقونة الشيت بجانبها علامة (+)",
+      "File -> Save",
+      "Undo",
+      "Help"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: أيقونة الإضافة السفلية تنشئ ورقة عمل جديدة New Sheet."
+  },
+  {
+    "id": 38,
+    "question": "38. عند ربط جدول لنفسه يقال عن هذا الـ Join أنه:",
+    "options": [
+      "Self Join",
+      "Inner Join",
+      "Left Join",
+      "Cross Join"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3 & 4: Self Join يقارن الصفوف ببعضها داخل نفس الجدول."
+  },
+  {
+    "id": 39,
+    "question": "39. ما الأداة التي تسمح بمعاينة وتعديل أنواع الحقول في شاشة Data Source؟",
+    "options": [
+      "Data Source Tab",
+      "Show Me panel",
+      "Toolbar",
+      "Marks Card"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: تبويب Data Source يتيح معاينة البيانات وتغيير أنواع الحقول."
+  },
+  {
+    "id": 40,
+    "question": "40. أين يقع خيار Replace Data Source في القائمة العلوية؟",
+    "options": [
+      "قائمة Data -> Replace Data Source",
+      "قائمة File",
+      "قائمة Help",
+      "قائمة Server"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 3: يتم الوصول لاستبدال المصدر عبر Data -> Replace Data Source."
+  },
+  {
+    "id": 41,
+    "question": "41. أي رسم بياني يُعتبر الأفضل لمقارنة الفئات المختلفة ببعضها البعض؟",
+    "options": [
+      "Line Graph",
+      "Bar Graph",
+      "Scatter Plot",
+      "Pie Chart"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 5: المخطط شريطي Bar Graph هو الأفضل لمقارنة الفئات Categorical Comparisons."
+  },
+  {
+    "id": 42,
+    "question": "42. أي رسم بياني يُعتبر الأفضل لعرض الاتجاهات والتغيرات عبر الزمن (Trends over Time)؟",
+    "options": [
+      "Bar Graph",
+      "Line Graph",
+      "Tree Map",
+      "Highlight Table"
+    ],
+    "correct": 1,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 5: المخطط الخطي Line Graph هو الأنسب لتتبع التغيرات عبر الزمن."
+  },
+  {
+    "id": 43,
+    "question": "43. أي صندوق في Marks Card يُستخدم لإظهار تفاصيل إضافية عند مرور الماوس على عنصر بالرسم؟",
+    "options": [
+      "Color",
+      "Size",
+      "Label",
+      "Tooltip"
+    ],
+    "correct": 3,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 5: Tooltip يعرض النصوص والتفاصيل التوضيحية عند تحريك الماوس فوق العناصر."
+  },
+  {
+    "id": 44,
+    "question": "44. كيف يمكن جعل عنوان ورقة العمل يتغير ديناميكياً بناءً على الفلتر المختار؟",
+    "options": [
+      "إدخال متغيّر الحقل عبر قائمة Insert داخل العنوان",
+      "كتابة العنوان يدوياً كل مرة",
+      "تغيير اسم الملف",
+      "استخدام خيار Duplicate"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 5: إدراج اسم المتغير من قائمة Insert يجعل العنوان ديناميكياً."
+  },
+  {
+    "id": 45,
+    "question": "45. ما الأداة المستخدمة لكتابة صيغة تفاضل تاريخين لحساب مدة مثل زمن الشحن؟",
+    "options": [
+      "Calculated Field",
+      "Marks Card",
+      "Bins",
+      "Hierarchies"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 5: الحقول المحسوبة تُستخدم لكتابة الصيغ الرياضية وحساب مدد التواريخ."
+  },
+  {
+    "id": 46,
+    "question": "46. ما هي السلال (Bins) في Tableau؟",
+    "options": [
+      "أوعية متساوية الحجم تقسم المقاييس العدديـة لبناء Histograms",
+      "فلاتر سريعة للتواريخ",
+      "طريقة لدمج الجداول",
+      "حقول نصية متغيرة"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 7: Bins تقسم المقاييس المستمرة إلى فترات متساوية الحجم لبناء الـ Histograms."
+  },
+  {
+    "id": 47,
+    "question": "47. أي نوع فلتر يعرض بطاقة تفاعلية على الشاشة تسمح للمستخدم بالتحكم في البيانات الظاهرة؟",
+    "options": [
+      "Quick Filter",
+      "Context Filter",
+      "Conditional Filter",
+      "Slicing Filter"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 7: Quick Filter يعرض عناصر تحكم تفاعلية للمستخدم للفلترة السريعة."
+  },
+  {
+    "id": 48,
+    "question": "48. ما هي الهرمية (Hierarchy) في Tableau؟",
+    "options": [
+      "تركيب شجري يسمح بالتفصيل والتنقل بين مستويات البيانات (Drill-down)",
+      "طريقة لتغيير لون العناصر",
+      "نوع من أنواع الـ Joins",
+      "حفظ الملف برمز سري"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 7: Hierarchy تسمح بالتنقل بين المستويات مثل الدولة -> المحافظة -> المدينة."
+  },
+  {
+    "id": 49,
+    "question": "49. ما هي لوحة القيادة (Dashboard) في Tableau؟",
+    "options": [
+      "تجميع لعدة ورقات عمل (Worksheets) في شاشة واحدة لتوصيل فكرة متكاملة",
+      "جدول بيانات اكسل",
+      "ملف نصي عادي",
+      "معادلة حسابية"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 8: Dashboard تجمع عدة رسومات في مكان واحد لتكوين لوحة تفاعلية شاملة."
+  },
+  {
+    "id": 50,
+    "question": "50. ما صيغة الملف التي تحفظ بنية العمل مدمجة مع ملف البيانات الأصلي Packaged Data؟",
+    "options": [
+      ".twbx",
+      ".twb",
+      ".csv",
+      ".txt"
+    ],
+    "correct": 0,
+    "difficulty": "easy",
+    "difficultyLabel": "🟢 سهل",
+    "explanation": "المحاضرة 8: ملف .twbx يحفظ الورقة والبيانات معاً لسهولة المشاركة."
+  },
+  {
+    "id": 51,
+    "question": "51. إذا أردنا مقارنة المبيعات عبر الأقاليم وتلوين كل إقليم بلون مختلف، أين نضع متغير Region؟",
+    "options": [
+      "في Rows وفي Color card في نفس الوقت",
+      "في Pages shelf فقط",
+      "في قائمة Help",
+      "في Tooltip فقط"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 2 و 5: يتم وضع البُعد في Rows لتقسيم القطاعات وتكراره على Color لتلوينه."
+  },
+  {
+    "id": 52,
+    "question": "52. ما الذي يحدث عند إلغاء تفعيل خيار Aggregate Measures من قائمة Analysis؟",
+    "options": [
+      "يعرض Tableau القيم الخام غير المجمعة لكل صف في قاعدة البيانات",
+      "يحسب مجموع المبيعات مضاعفاً",
+      "يحذف جميع المقاييس",
+      "يحول كل الأبعاد إلى أرقام"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 2 (Slide 9): إلغاء Aggregate Measures يفَكّ التجميع ويعرض القيم النقية الخام."
+  },
+  {
+    "id": 53,
+    "question": "53. ما الفرق بين Granularity عالية و Granularity منخفضة في Tableau؟",
+    "options": [
+      "Granularity العالية تعني تفاصيل أكثر وتجميعاً أقل، والمنخفضة تعني تفاصيل أقل وتجميعاً أعلى",
+      "Granularity العالية تعني أرقاماً أكبر",
+      "كلاهما متماثل تماماً",
+      "تطبق فقط على التواريخ"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 2: كلما زادت التفاصيل زادت الـ Granularity وقل التجميع Aggregation."
+  },
+  {
+    "id": 54,
+    "question": "54. حقل تاريخ Order Date تم سحبها لـ Columns، وظاهر بجانبه علامة (+). ماذا يعني ذلك؟",
+    "options": [
+      "الحقل ينتمي إلى Hierarchy هرمية (سنة -> ربع -> شهر)",
+      "الحقل مكسور",
+      "الحقل يتطلب فلتر شرطي",
+      "الحقل يحتوي أخطاء"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 2 & 7: علامة (+) تعني وجود هرمية تسمح بالتوسع والتفصيل Drill-down."
+  },
+  {
+    "id": 55,
+    "question": "55. ما هو الفرق بين Convert to Dimension و Convert to Continuous عند النقر الأيمن على حقل؟",
+    "options": [
+      "الأول يغير دوره الوظيفي كبُعد أو مقياس، والثاني يغير طريقة تمثيله كمنفصل أو مستمر",
+      "كلاهما ينفذ نفس الشيء",
+      "الأول يحذف الحقل",
+      "الثاني يغير لون الواجهة"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 2: تغيير الدور (Measure/Dimension) يختلف عن تغيير التنسيق (Discrete/Continuous)."
+  },
+  {
+    "id": 56,
+    "question": "56. في عملية تنظيف البيانات، ما هو الفرق الجوهري بين Data Cleaning و Data Transformation؟",
+    "options": [
+      "Cleaning تزيل وتصلح البيانات غير الصحيحة، بينما Transformation تحول شكل وبنية البيانات",
+      "Cleaning تحول البيانات لـ SQL",
+      "Transformation تحذف البيانات المكررة فقط",
+      "لا يوجد فرق"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 3 (Slide 23): Cleaning هي إزالة الشوائب والأخطاء بينما Transformation هي تحويل البنية Munging."
+  },
+  {
+    "id": 57,
+    "question": "57. ما هي خطوة تنظيف البيانات التي تتعامل مع القيم المفقودة Null Values؟",
+    "options": [
+      "Step 4: Handle missing data (Drop / Impute / Adjust)",
+      "Step 1: De-duplication",
+      "Step 2: Structural errors",
+      "Step 5: QA"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 3: التعامل مع البيانات المفقودة هو الخطوة الرابعة بإسقاطها أو تعويضها Imputation."
+  },
+  {
+    "id": 58,
+    "question": "58. عند ربط جدولين وكان اسم العمود في الأول Product ID وفي الثاني Prod ID، كيف يتصرف Tableau؟",
+    "options": [
+      "لن يربط الجداول تلقائياً ويتطلب من المستخدم تحديد الأعمدة المتطابقة يدوياً",
+      "سيحذف الجدول الثاني تلقائياً",
+      "سيغير اسم العمود في قاعدة البيانات",
+      "سينشئ خريطة فوراً"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 3: عند اختلاف الأسماء Inconsistent Labels يجب اختيار المفاتيح يدوياً لعمل الـ Join."
+  },
+  {
+    "id": 59,
+    "question": "59. إذا ظهرت قيم مثل 'N/A' و 'Not Applicable' في نفس العمود، فهذا يعتبر أي نوع من الأخطاء؟",
+    "options": [
+      "Structural Errors (أخطاء هيكلية في التسمية)",
+      "Outliers (قيم شاذة)",
+      "Missing Values",
+      "Duplicate Rows"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 3: التباين في المسميات لنفس المعنى يعتبر أخطاء هيكلية Structural Errors يجب توحيدها."
+  },
+  {
+    "id": 60,
+    "question": "60. أي ميزة في Tableau تتيح عرض الجداول المدمجة ونسخ الصفوف خلف الرسم البياني؟",
+    "options": [
+      "View Data option في قائمة Data",
+      "Data Blending Tab",
+      "Format Axis",
+      "Marks Card"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 3: View Data تتيح عرض وفحص ونقل الصفوف المكونة للتحليل."
+  },
+  {
+    "id": 61,
+    "question": "61. كيف ننشئ رسم Highlight Table ملون بناءً على الأرباح والمبيعات معاً؟",
+    "options": [
+      "وضع الأبعاد في الصفوف والأعمدة والمقياس في Text وفي Color بالـ Marks Card",
+      "استخدام خيار Duplicate",
+      "استخدام فلتر Slicing",
+      "إنشاء هرمية"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 5: جدول التظليل بنشأ بوضع المقياس على كارت Text وكارت Color معاً."
+  },
+  {
+    "id": 62,
+    "question": "62. ما هو الغرض من إضافة متغير على صندوق Detail داخل Marks Card؟",
+    "options": [
+      "زيادة تفاصيل التجميع بالرسم (Granularity) دون تغيير اللون أو الحجم",
+      "تغيير خط النص",
+      "تصفية البيانات",
+      "تغيير عنوان الشيت"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 5: Detail يضيف البُعد لمستوى تفاصيل المشهد دون إعطائه لونا أو حجماً محدداً."
+  },
+  {
+    "id": 63,
+    "question": "63. إذا أردنا تمثيل تشتت وتوزيع قيم المبيعات ومعرفة القيم الشاذة Outliers، أي رسم نستخدم؟",
+    "options": [
+      "Box Plot (مخطط الصندوق والطرفين)",
+      "Line Graph",
+      "Pie Chart",
+      "Gantt Chart"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 5: Box Plot هو الرسم الإحصائي الأفضل لملاحظة التشتت والتوزيع والـ Outliers."
+  },
+  {
+    "id": 64,
+    "question": "64. ما الفرق بين المخطط الهيكلي Tree Map ورسم الدائرة Pie Chart؟",
+    "options": [
+      "Tree Map يمثل النسب بمستطيلات متداخلة تناسب الفئات الكثيرة، بينما Pie Chart ينأسب الفئات القليلة جداً",
+      "Pie Chart يفضل مع 50 فئة",
+      "Tree Map للتواريخ فقط",
+      "كلاهما غير متوفر بالبرنامج"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 5: Tree Map ممتاز لتنظيم الفئات المتعددة داخل مستطيلات مساحية."
+  },
+  {
+    "id": 65,
+    "question": "65. إذا أنشأنا حقل محسوب بالصيغة `SUM([Profit]) / SUM([Sales])` فهذا يعبر عن:",
+    "options": [
+      "Profit Margin (نسبة هامش الربح)",
+      "زمن الشحن Time to Ship",
+      "عدد العملاء",
+      "مجموع المبيعات"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 6: قسمة المجموع الكلي للأرباح على مجموع المبيعات تعطي نسبة هامش الربح المحسوبة."
+  },
+  {
+    "id": 66,
+    "question": "66. ما هي الفلاتر الشرطية Conditional Filters في Tableau؟",
+    "options": [
+      "فلاتر تعتمد على تطبيق قواعد رقمية أو صيغ حسابية مثل [Sales] > 100000",
+      "فلاتر تلوين فقط",
+      "فلاتر تعمل عند فتح الملف فقط",
+      "فلاتر للمسح الآلي"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 7: Conditional Filters تفلتر الأعضاء بناء على شرط عددي By Field أو معادلة By Formula."
+  },
+  {
+    "id": 67,
+    "question": "67. ما هو Slicing Filter في Tableau؟",
+    "options": [
+      "فلترة البيانات اعتماداً على بعد غير موجود في المحاور (Rows/Columns) للرسم",
+      "تقسيم العمود لنصفين",
+      "حذف الصفوف المكررة",
+      "تقطيع الرسم البياني"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 7: Slicing Filter يفلتر البُعد دون إدخاله بشكل مباشر في بنية الرسم Structural Rows/Columns."
+  },
+  {
+    "id": 68,
+    "question": "68. ما الفرق بين الاتحاد Union والتقاطع Intersection عند دمج المجموعات Combined Sets؟",
+    "options": [
+      "Union يأخذ جميع أعضاء المجموعتين، بينما Intersection يأخذ المشترك بينهما فقط",
+      "Union يحذف المجموعتين",
+      "Intersection يجمع الأرقام",
+      "لا يوجد فرق"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 7: Combined Sets تسمح بالاتحاد Union أو التقاطع Intersection أو الاستثناء."
+  },
+  {
+    "id": 69,
+    "question": "69. ما هي المعاملات (Parameters) وكيف تختلف عن الفلاتر؟",
+    "options": [
+      "Parameters هي قيم متغيرة يحددها المستخدم وتنقل التحكم له وتستخدم داخل المعاملات والرسوم",
+      "Parameters هي قواعد بيانات",
+      "Parameters تستخدم للطباعة فقط",
+      "الفلاتر لا يمكن تغييرها"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 7: Parameters تعطي التحكم للمستخدم لنقل المتغيرات للمعادلات والخطوط المرجعية."
+  },
+  {
+    "id": 70,
+    "question": "70. عند تطبيق فلتر Quick Filter، ما الفرق بين Single Value List و Multi-Value Dropdown؟",
+    "options": [
+      "الأول يتيح اختيار عنصر واحد فقط، والثاني يتيح اختيار عدة عناصر من قائمة منسدلة",
+      "الأول ملون والثاني أبيض",
+      "كلاهما يختار كل العناصر دائماً",
+      "الثاني يحذف الفلتر"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 7: نوع التفاعل بالفلتر يحدد إمكانية اختيار عنصر واحد أم متعدد."
+  },
+  {
+    "id": 71,
+    "question": "71. كيف نربط فلتر موجود في Dashboard بحيث يطبق على جميع الشيتات داخل تلك اللوحة؟",
+    "options": [
+      "من خيارات الفلتر -> Apply to Worksheets -> All on Dashboard",
+      "من قائمة File -> Save",
+      "من Marks Card -> Color",
+      "من Analysis -> Inspect"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 8: خيار Apply to Worksheets -> All on Dashboard يربط الفلتر بكل رسومات اللوحة."
+  },
+  {
+    "id": 72,
+    "question": "72. ما هو إجراء التظليل Highlight Action في الـ Dashboard؟",
+    "options": [
+      "إجراء يؤدي إلى إبراز العناصر المحددة في رسم بياني داخل جميع الرسوم الأخرى المرتبطة بها",
+      "تلوين خلفية الشاشة بالكامل",
+      "تغيير خط النص",
+      "حذف البيانات الغير محددة"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 8: Highlight Action يعزز الترابط البصري بتظليل نفس الفئة عبر كل الرسومات."
+  },
+  {
+    "id": 73,
+    "question": "73. ما هو الفرق بين Fixed Size و Automatic Size في إعدادات حجم الـ Dashboard؟",
+    "options": [
+      "Fixed يحدد أبعاداً ثابتة بالبكسل، بينما Automatic يجعل اللوحة تتكيف ديناميكياً مع حجم الشاشة",
+      "Automatic يقفل الحجم",
+      "Fixed يجعل الشاشة تلمع",
+      "لا يوجد فرق في العرض"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 8: Automatic Size يضمن التجاوب واستغلال كامل مساحة شاشة العرض المستخدمة."
+  },
+  {
+    "id": 74,
+    "question": "74. إذا أردنا توجيه المستخدم لصفحة تقرير تفصيلية عند النقر على منطقة بالخريطة في Dashboard، نستخدم:",
+    "options": [
+      "Filter Action أو Go to URL Action",
+      "Quick Bin Creation",
+      "Disaggregate Measures",
+      "Replace Source"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 8: Actions في الـ Dashboard تتضمن الفلترة والانتقال للروابط والتظليل."
+  },
+  {
+    "id": 75,
+    "question": "75. لماذا نفضل تصدير العمل كملف Packaged Workbook (.twbx) عند إرساله بالبريد الإلكتروني؟",
+    "options": [
+      "لأنه يدمج مصدر البيانات (مثل شيت الاكسل) داخل الملف فلا يظهر خطأ فقدان البيانات عند المستلم",
+      "لأنه يقلل الألوان",
+      "لأنه يحول الرسوم إلى نصوص",
+      "لأنه يمنع التعديل"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 8: ملف .twbx يمنع أخطاء Data Source Missing لأنه يتضمن ملف البيانات ذاته."
+  },
+  {
+    "id": 76,
+    "question": "76. عند تصفية رسم بياني حسب أعمدة متعددة، ما تأثير ترتيب الأبعاد في الـ Filters Shelf على الناتج النهائي؟",
+    "options": [
+      "تنفذ الفلاتر تتابعياً وفقاً لترتيبها التنازلي وتصفية النطاق تدريجياً",
+      "لا يتأثر الترتيب إطلاقاً",
+      "يحذف الفلتر الأخير",
+      "يغير الألوان تلقائياً"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 7: ترتيب الفلاتر يطبق الشروط تتابعياً حسب الترتيب والتسلسل الهرمي للعمليات."
+  },
+  {
+    "id": 77,
+    "question": "77. ما الفرق بين إنشاء Bins يدوياً عبر خيار Create Bins وإنشائها عبر اختيار Histogram من Show Me؟",
+    "options": [
+      "Show Me تنشئ حقل الـ Bin والرسم البياني التكراري تلقائياً بنقرة واحدة، بينما اليدوي يتطلب تحديد حجم السلة يدوياً",
+      "اليدوي أسرع دائماً",
+      "Show Me تنشئ جدولاً نصياً",
+      "كلاهما يتطلب معادلات LOD"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 7: خيار Histogram من Show Me ينشئ حقل السلال تلقائياً وبشكل مبسط."
+  },
+  {
+    "id": 78,
+    "question": "78. في الشاشات التفاعلية Dashboards، كيف نضمن بقاء عنصر معين (مثل الخريطة) ثابتاً لا يتأثر بفلتر الأقاليم؟",
+    "options": [
+      "استثناء هذا الشيت تحديداً عند خيار Apply to Worksheets -> Selected Worksheets",
+      "إلغاء الخريطة",
+      "قفل التعديل",
+      "تغيير اسم الملف"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 8: يمكنك تحديد ورقات عمل معينة لتتأثر بالفلتر واقتطاع الباقي."
+  },
+  {
+    "id": 79,
+    "question": "79. إذا احتوى حقل على رموز جغرافيـة (كعلامة الكرة الأرضية Globe icon)، فهذا يعني أن Tableau:",
+    "options": [
+      "تعرّف تلقائياً على دوره الجغرافي (Geographic Role) مثل الدولة أو المحافظة لتكوين الخرائط",
+      "يعتبره حهلاً مكسوراً",
+      "يتطلب تحويله إلى Measure",
+      "يحتاج معالجة SQL"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 8: أيقونة الكرة الأرضية تشير إلى تخصيص دور جغرافي الحقل لإنشاء الخرائط تلقائياً."
+  },
+  {
+    "id": 80,
+    "question": "80. ما هي النتيجة عند اختيار خيار Export Packaged Workbook من قائمة File في Tableau Desktop؟",
+    "options": [
+      "تجميع ملف التقرير مع مصادر البيانات المحلية في ملف واحد مضغوط بصيغة .twbx",
+      "تصدير الملف كصورة PNG",
+      "طباعة ورقة العمل",
+      "تأمين الملف بكلمة سر"
+    ],
+    "correct": 0,
+    "difficulty": "medium",
+    "difficultyLabel": "🟡 متوسط",
+    "explanation": "المحاضرة 8: ملف .twbx يجمع البيانات مع الورقة في حزمة مدمجة واحدة."
+  },
+  {
+    "id": 81,
+    "question": "81. في ترتيب تنفيذ الفلاتر (Order of Operations) في Tableau، أي الفلاتر يتم تنفيذه أولاً قبل فلاتر الأبعاد العادية؟",
+    "options": [
+      "Context Filters",
+      "Dimension Filters",
+      "Measure Filters",
+      "Table Calculation Filters"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 7: Context Filters تنفذ في مرتبة سباقة على Dimension Filters وتنشئ جدولاً مؤقتاً للعمليات."
+  },
+  {
+    "id": 82,
+    "question": "82. ما هو تأثير تعبير الـ LOD من نوع `FIXED` على التجميع في الرسم البياني؟",
+    "options": [
+      "يحسب القيمة عند الأبعاد المحكّمة بالمعادلة بغض النظر عن الأبعاد الموجودة في المشهد (View LOD)",
+      "يضيف دائماً أبعاد المشهد للتجميع",
+      "يستثني المقاييس المالية فقط",
+      "يلغي التجميع كلياً"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 2 (Slide 11): تعبير FIXED يحسب النتيجة عند الأبعاد المحددة بالمعادلة فقط مع تجاهل أبعاد المشهد."
+  },
+  {
+    "id": 83,
+    "question": "83. تعبير الـ LOD من نوع `INCLUDE` يقدم فائدة أساسية وهي:",
+    "options": [
+      "إضافة أبعاد تفصيلية للتجميع غير موجودة في المشهد المرئي وتجميع النتيجة بناءً عليها",
+      "تجاهل كل أبعاد التقرير",
+      "ثبات القيمة دائماً",
+      "تحويل الحقل النصي لرقم"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 2: INCLUDE يقبل أبعاد التقرير ويضيف إليها أبعاداً إضافية لتفصيل التجميع."
+  },
+  {
+    "id": 84,
+    "question": "84. تعبير الـ LOD من نوع `EXCLUDE` يُستخدم بهدف:",
+    "options": [
+      "حذف واستثناء أبعاد معينة من التجميع حتى لو كانت ظاهرة ومستخدمة في المشهد",
+      "تغيير اسم العمود",
+      "إضافة فلاتر سياق",
+      "دمج السيرفرات"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 2: EXCLUDE يقصي أبعاداً معينة من حسابات التجميع رغم وجودها في التقرير المرئي."
+  },
+  {
+    "id": 85,
+    "question": "85. إذا طبقنا فلتر أبعاد عادي وفلتر سياق Context Filter على جدول ضخم، كيف تؤثر ترتيب الفلترة على السرعة؟",
+    "options": [
+      "Context Filter ينشئ جدولاً مصغراً مؤقتاً بالذاكرة فيقلل عدد الصفوف التي يعالجها الفلتر العالي فتزيد السرعة جداً",
+      "يؤدي لتباطؤ النظام",
+      "يتوقف البرنامج عن العمل",
+      "لا يوجد أي تأثير على السرعة"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 7: Context Filter يحسن الكفاءة بمعالجة مجموعة البيانات المصغرة أولاً في الذاكرة."
+  },
+  {
+    "id": 86,
+    "question": "86. عند عمل Data Blending، ما الذي يحدث إذا احتوت البيانات الثانوية Secondary Data Source على عدة قيم مقابلة لقيمة واحدة في البيانات الرئيسية؟",
+    "options": [
+      "يظهر رمز النجمة (*) في الرسم البياني للبيانات الثانوية لإشارة وجود قيم متعددة",
+      "يحدث خطأ ويغلق البرنامج",
+      "يتم جمع القيم تلقائياً دائماً",
+      "تُحذف الصفوف"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 3 و 4: في Data Blending عند وجود قيم متعددة One-to-Many دون تجميع يظهر رمز النجمة (*) Place holder."
+  },
+  {
+    "id": 87,
+    "question": "87. ما الفرق الجوهري في الربط بين العلاقات (Relationships) والـ Joins التقليدية في Tableau الحاديث؟",
+    "options": [
+      "Relationships تحافظ على مستوى تفاصيل كل جدول مستقل وتجمع عند الحاجة بدون تكرار الصفوف Duplicate Rows",
+      "Joins أسرع دائماً",
+      "Relationships للتواريخ فقط",
+      "Joins لا تدمج الجداول"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 3: العلاقات تعمل بدون دمج صلبي فتمتع تكرار البيانات الموزونة عند التجميع."
+  },
+  {
+    "id": 88,
+    "question": "88. في خطوة التعامل مع البيانات المفقودة (Handle Missing Data)، ما هي المخاطرة الرئيسية عند استخدام طريقة التعويض (Imputation)؟",
+    "options": [
+      "قد تفقد البيانات نزاهتها لأنك تبني التحليل على افتراضات وترجيحات وليس ملاحظات حقيقية",
+      "تتضاعف مساحة الملف 10 مرات",
+      "يتغير لون المخطط لأسود",
+      "يحذف الجدول بالكامل"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 3 (Slide 26): الإدخال بالافتراض Imputation قد يمس بنزاهة وتكامل البيانات الأصيلة."
+  },
+  {
+    "id": 89,
+    "question": "89. أي خصائص جودة البيانات الخمس تضمن أن القياسات تستخدم نفس وحدة القياس (مثل الكيلوجرام عبر كل السجلات)؟",
+    "options": [
+      "Uniformity (التوحيد)",
+      "Accuracy (الدقة)",
+      "Completeness (الاستكمال)",
+      "Validity (الصلاحية)"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 3 (Slide 28): Uniformity هي درجة تخصيص وتوحيد وحدات القياس عبر كامل السجلات."
+  },
+  {
+    "id": 90,
+    "question": "90. ما الذي يحدث عند عمل Blend لمصدرين وتظهر علامة قفل مكسور (Broken Link) بجانب البُعد؟",
+    "options": [
+      "يعني أن البُعد غير مستخدم حالياً كرابط فعال بين المصدرين ويمكن النقر عليه لتفعيله",
+      "يعني أن الملف معطوب",
+      "يعني حظر الوصول للبيانات",
+      "يعني مسح الحقل"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 3: علامة القفل تحدد الحقول المستخدمة كروابط بين Primary و Secondary Data Sources."
+  },
+  {
+    "id": 91,
+    "question": "91. عند إنشاء Combined Set باستخدام خيار 'Except' (Set 1 except Set 2)، ماذا تكون النتيجة؟",
+    "options": [
+      "تتكون المجموعة من عناصر المجموعة الأولى مع استبعاد أي عنصر موجود في المجموعة الثانية",
+      "تأخذ كل عناصر المجموعتين",
+      "تأخذ العناصر المشتركة فقط",
+      "تكون المجموعة فارغة دائمًا"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 7 (Slide 51): الخيار الثالث يأخذ قيم Set 1 التي ليست أجزاءً من Set 2."
+  },
+  {
+    "id": 92,
+    "question": "92. كيف تؤثر الـ Bins عند تحويل المقياس المستمر إلى فترات على الـ Granularity؟",
+    "options": [
+      "تتحول القيم المستمرة إلى حقول منفصلة discrete تزيد من تنظيم التوزيع دون فقدان النطاق",
+      "تكتمل القيمة للماكينات فقط",
+      "تحول كل الأرقام إلى نصوص غير قابلة للفرز",
+      "تحذف القيم السالبة"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 7: Bins تنشئ فئات متساوية تحول المقياس إلى فئات تكرارية خالية من الانحياز."
+  },
+  {
+    "id": 93,
+    "question": "93. إذا كان لدينا رسم بياني يحتوي على المبيعات حسب المنطقة والشهر، كيف تؤثر إضافة حقل Category على كارت Detail؟",
+    "options": [
+      "يزيد مستوى تفاصيل التجميع (Higher Granularity) فيتم تقسيم كل نقطة بيانات حسب الأقسام دون تغيير الألوان",
+      "يحذف المحور الأفقي",
+      "يغير نوع الرسم إلى خريطة",
+      "يلغي التجميع"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 5: Detail يكسر التجميع لمستوى أعمق دون التأثير المباشر على التنسيق البصري للون والحجم."
+  },
+  {
+    "id": 94,
+    "question": "94. ما هي النتيجة عند استخدام خيار Disaggregate Measures على رسم يحتوي على مليوني صف؟",
+    "options": [
+      "سيرسم Tableau مليوني نقطة بيانات منفصلة مما تؤدي لضغط عالي جداً على الذاكرة وتباطؤ الرسم",
+      "سيزيد سرعة البرنامج",
+      "سيحفظ الملف تلقائياً",
+      "سيحول البيانات إلى صور"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 2: إلغاء التجميع على البيانات الضخمة يرهق الذاكرة برسم كل نقطة خام بصورة منفردة."
+  },
+  {
+    "id": 95,
+    "question": "95. عند دمج فلتر شرطي مع فلتر سياق، ما ترتيب الأولوية في المعالجة؟",
+    "options": [
+      "يتنفذ فلتر السياق Context Filter أولاً ليقلل النطاق ثم يطبق الفلتر الشرطي Conditional Filter على النتيجة",
+      "يتنفذ الشرطي أولاً",
+      "يتنفذ الفلتر العادي وتتجاهل السياق",
+      "يتوقف المعالج"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 7: سياق العمليات يفرض تقدم Context Filter على كافة الفلاتر البُعدية والشرطية."
+  },
+  {
+    "id": 96,
+    "question": "96. ما هي الوظيفة الحقيقية لخيار Show Highlighter في الفلاتر الخطيّة والبيانية؟",
+    "options": [
+      "يسلط الضوء بصرياً على السلسلة المختارة مع إبقاء بقية السلاسل خافتة خلفها بدلاً من إخفائها",
+      "يحذف باقي البيانات من الرسم",
+      "يغير ألوان الملف بالكامل",
+      "يطبع التقرير"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 5: Highlighter يبرز العنصر المكتوب أو المختار مع إبقاء باقي الرسوم خلفه لتسهيل المقارنة."
+  },
+  {
+    "id": 97,
+    "question": "97. ما الفرق الرئيسي بين استخدام Parameter في فلتر واستخدام Quick Filter عادي؟",
+    "options": [
+      "Parameter يمكن استخدامه عبر مصادر بيانات متعددة وداخل الحقول المحسوبة، بينما Quick Filter يخص مصدراً واحداً",
+      "Quick Filter يعمل بدون دمج",
+      "Parameter يحذف الصفوف المكررة تلقائياً",
+      "لا يوجد أي فرق"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 7: Parameters مرنة جداً وتعمل عبر عدة مصادر وتستدعى داخل المعادلة الحسابية."
+  },
+  {
+    "id": 98,
+    "question": "98. ما هو إجراء الانتقال إلى رابط URL Action في الـ Dashboard؟",
+    "options": [
+      "إجراء يفتح صفحة ويب خارجية أو تقرير ويب آخر ممرراً قيم العناصر المحددة كـ Parameters في الروابط",
+      "حفظ الملف على القرص الصلب",
+      "تغيير لغة البرنامج",
+      "إغلاق Tableau"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 8: URL Actions تتيح ربط عناصر اللوحة بروابط ويب وتمرير البيانات فيها ديناميكياً."
+  },
+  {
+    "id": 99,
+    "question": "99. أي من أنواع الفلاتر التالية يمتلك الأولوية الأدنى في سياق التنفيذ في Tableau (Order of Operations)؟",
+    "options": [
+      "Table Calculation Filters",
+      "Context Filters",
+      "Dimension Filters",
+      "Extract Filters"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 7: فلاتر الحسابات التجميعية Table Calculation Filters تُنفذ في نهاية الترتيب تماماً بعد حساب الجدول."
+  },
+  {
+    "id": 100,
+    "question": "100. ما الذي يميز خيار 'All on Dashboard' عند ربط الفلاتر برسم معين في Dashboard 1؟",
+    "options": [
+      "تطبيق الفلتر تلقائياً على كل ورقات العمل المشتركة في هذه اللوحة وتوحيد طريقة العرض",
+      "تطبيق الفلتر على سيرفرات الشركة بالكامل",
+      "حذف كافة الرسوم الأخرى",
+      "قفل اللوحة ضد التعديل"
+    ],
+    "correct": 0,
+    "difficulty": "hard",
+    "difficultyLabel": "🔴 صعب",
+    "explanation": "المحاضرة 8: All on Dashboard يضمن توحيد وتوافق التفاعل للفلتر عبر جميع الشيتات باللوحة."
+  }
+];
+
+        let chosenDifficulty = 'all';
+        let currentFilteredList = [];
+        let currentIndex = 0;
+        let userAnswers = {}; // q_id -> { selected: idx, isCorrect: bool }
+
+        function selectDifficulty(level, cardElem) {
+            chosenDifficulty = level;
+            document.querySelectorAll(".select-card").forEach(c => c.classList.remove("selected"));
+            cardElem.classList.add("selected");
+        }
+
+        function startExam() {
+            if (chosenDifficulty === 'all') {
+                currentFilteredList = [...allQuestions];
+            } else {
+                currentFilteredList = allQuestions.filter(q => q.difficulty === chosenDifficulty);
+            }
+
+            currentIndex = 0;
+            userAnswers = {};
+
+            document.getElementById("start-screen").style.display = "none";
+            document.getElementById("exam-screen").style.display = "grid";
+            document.getElementById("quiz-main-view").style.display = "block";
+            document.getElementById("result-screen").style.display = "none";
+
+            renderGridPalette();
+            loadQuestion();
+        }
+
+        function backToStart() {
+            document.getElementById("start-screen").style.display = "block";
+            document.getElementById("exam-screen").style.display = "none";
+        }
+
+        function renderGridPalette() {
+            const palette = document.getElementById("grid-palette");
+            palette.innerHTML = "";
+
+            currentFilteredList.forEach((q, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "q-num-btn";
+                btn.innerText = idx + 1;
+
+                if (idx === currentIndex) btn.classList.add("active");
+
+                if (userAnswers[q.id]) {
+                    if (userAnswers[q.id].isCorrect) btn.classList.add("answered-correct");
+                    else btn.classList.add("answered-wrong");
+                }
+
+                btn.onclick = () => {
+                    currentIndex = idx;
+                    renderGridPalette();
+                    loadQuestion();
+                };
+
+                palette.appendChild(btn);
+            });
+        }
+
+        function loadQuestion() {
+            const q = currentFilteredList[currentIndex];
+            document.getElementById("question-count").innerText = `السؤال ${currentIndex + 1} من ${currentFilteredList.length}`;
+            document.getElementById("question-text").innerText = q.question;
+            document.getElementById("progress-bar").style.width = `${((currentIndex + 1) / currentFilteredList.length) * 100}%`;
+
+            // Badge styling
+            const badge = document.getElementById("diff-badge");
+            badge.innerText = q.difficultyLabel;
+            badge.className = "badge " + (q.difficulty === 'easy' ? 'badge-easy' : q.difficulty === 'medium' ? 'badge-medium' : 'badge-hard');
+
+            const optionsContainer = document.getElementById("options-container");
+            optionsContainer.innerHTML = "";
+            document.getElementById("explanation-box").style.display = "none";
+
+            const nextBtn = document.getElementById("next-btn");
+            nextBtn.innerText = "تأكيد الإجابة ➡️";
+            nextBtn.disabled = true;
+
+            const existingAns = userAnswers[q.id];
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.innerHTML = `<span>${opt}</span> <span style="opacity: 0.6;">[ ${String.fromCharCode(65 + idx)} ]</span>`;
+
+                if (existingAns) {
+                    btn.disabled = true;
+                    if (idx === q.correct) btn.classList.add("correct");
+                    if (idx === existingAns.selected && idx !== q.correct) btn.classList.add("wrong");
+                } else {
+                    btn.onclick = () => selectOption(idx, btn);
+                }
+
+                optionsContainer.appendChild(btn);
+            });
+
+            if (existingAns) {
+                document.getElementById("explanation-text").innerText = q.explanation;
+                document.getElementById("explanation-box").style.display = "block";
+                nextBtn.innerText = currentIndex < currentFilteredList.length - 1 ? "التالي ➡️" : "عرض النتيجة 🏆";
+                nextBtn.disabled = false;
+            }
+
+            updateStats();
+        }
+
+        function selectOption(idx, btn) {
+            document.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
+            btn.classList.add("selected");
+            btn.dataset.selected = idx;
+            document.getElementById("next-btn").disabled = false;
+        }
+
+        function handleNextQuestion() {
+            const q = currentFilteredList[currentIndex];
+            const nextBtn = document.getElementById("next-btn");
+
+            if (!userAnswers[q.id]) {
+                const selectedBtn = document.querySelector(".option-btn.selected");
+                if (!selectedBtn) return;
+
+                const selectedIdx = parseInt(selectedBtn.dataset.selected);
+                const isCorrect = (selectedIdx === q.correct);
+
+                userAnswers[q.id] = { selected: selectedIdx, isCorrect: isCorrect };
+
+                renderGridPalette();
+                loadQuestion();
+            } else {
+                if (currentIndex < currentFilteredList.length - 1) {
+                    currentIndex++;
+                    renderGridPalette();
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderGridPalette();
+                loadQuestion();
+            }
+        }
+
+        function updateStats() {
+            let totalCorrect = 0;
+            currentFilteredList.forEach(q => {
+                if (userAnswers[q.id] && userAnswers[q.id].isCorrect) {
+                    totalCorrect++;
+                }
+            });
+
+            document.getElementById("score-counter").innerText = `${totalCorrect} / ${currentFilteredList.length}`;
+        }
+
+        function showResults() {
+            document.getElementById("quiz-main-view").style.display = "none";
+            document.getElementById("result-screen").style.display = "block";
+
+            let totalCorrect = 0;
+            currentFilteredList.forEach(q => {
+                if (userAnswers[q.id] && userAnswers[q.id].isCorrect) {
+                    totalCorrect++;
+                }
+            });
+
+            const percentage = ((totalCorrect / currentFilteredList.length) * 100).toFixed(1);
+            document.getElementById("final-score").innerText = `${totalCorrect} / ${currentFilteredList.length}`;
+
+            const breakdown = `
+                إجمالي الإجابات الصحيحة: <strong>${totalCorrect}</strong> من أصل <strong>${currentFilteredList.length}</strong><br>
+                النسبة المئوية: <strong>${percentage}%</strong>
+            `;
+            document.getElementById("result-breakdown").innerHTML = breakdown;
+        }
+    </script>
+</body>
+</html>
